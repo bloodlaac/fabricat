@@ -14,7 +14,8 @@ Maintain a clear dependency direction: `shared` → `game_logic` → `api`. Avoi
 ## Environment and tooling
 - Manage dependencies with **uv**. After editing `pyproject.toml`, regenerate the lockfile via `uv lock` (or `uv sync` if you want to install immediately).
 - Target **Python 3.12**. Avoid using deprecated stdlib modules; favor `typing` features (e.g., `typing.Self`, `enum.StrEnum`).
-- Format code with `uv run ruff format` (if/when ruff is introduced). Until a formatter is added, ensure files stay compliant with PEP 8 and use black-compatible formatting.
+- Lint code with `uv run ruff check`.
+- Format code with `uv run ruff format`. Until a formatter is added, ensure files stay compliant with PEP 8 and use black-compatible formatting.
 
 ## Running the service
 - Local smoke test: `uv run api` launches the development server via `fabricat_backend.main` with auto-reload enabled.
@@ -25,6 +26,11 @@ Maintain a clear dependency direction: `shared` → `game_logic` → `api`. Avoi
 - Use `pytest` for unit/integration tests. Store tests under `tests/` at the project root (`backend/tests/`), mirroring the `src/` layout.
 - Keep test fixtures deterministic—game logic must be reproducible for all players.
 - When you add tests, document the canonical command (e.g., `uv run pytest`) in the repository-level `AGENTS.md`.
+
+## Important Rules
+- **ALWAYS** use `uv run pytest` before commit and fix all isses
+- **ALWAYS** use `uv run ruff check` before commit and fix all issues
+- **ALWAYS** use `uv run ruff format` before commit
 
 ## Adding dependencies
 1. Declare them in `pyproject.toml` inside the `[project.dependencies]` table.
@@ -41,3 +47,10 @@ Maintain a clear dependency direction: `shared` → `game_logic` → `api`. Avoi
 - Always use absolute imports rooted at `fabricat_backend`; avoid relative imports such as `from .module import ...`.
 
 By following these rules you help downstream agents (and humans) keep the backend coherent and maintainable.
+
+## Gameplay WebSocket notes
+
+- Sessions no longer auto-start when a socket joins. After receiving the `welcome` payload, wait for the client to send `{"type": "session_control", "command": "start"}` before calling `SessionRuntime.start()`. Use `SessionControlAckResponse` to confirm the transition.
+- A `phase_action` with payload `{"kind": "skip"}` now cancels the active timer via `SessionRuntime.fast_forward_phase()`, which lets the frontend advance phases without waiting out the full duration.
+- A background lobby timer now auto-starts a session 60 seconds after the first player joins (once `player_count >= 2`). The start button still forces an immediate launch, but the backend will reject the command if fewer than two players are present. Hitting four players triggers an instant start without waiting for the timer.
+- Session contexts are shared across all sockets that use the same `session_code`. Up to four human players can claim seats before the game launches; once the runtime starts, no new seats are created and each `session_control:start` ack is only sent to the requesting client (auto-start broadcasts go to everyone).
