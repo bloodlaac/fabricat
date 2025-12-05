@@ -80,6 +80,7 @@ class SessionContext:
     session_code: str
     session: GameSession
     runtime: SessionRuntime
+    game_settings: GameSettings
     players: list[Player]
     assignments: dict[str, Player] = field(default_factory=dict)
     user_connections: dict[str, int] = field(default_factory=dict)
@@ -252,7 +253,7 @@ def _refresh_unstarted_context(context: SessionContext) -> None:
     context.assignments = new_assignments
 
     listeners = list(context.listeners)
-    session = GameSession(players=context.players, settings=_default_game_settings())
+    session = GameSession(players=context.players, settings=context.game_settings)
     runtime = SessionRuntime(
         session=session,
         phase_duration=DEFAULT_PHASE_DURATION_SECONDS,
@@ -299,7 +300,8 @@ async def _register_connection(
         context = _SESSION_REGISTRY.get(session_code)
         if context is None:
             players, controlled_player = _bootstrap_players(user_identifier)
-            session = GameSession(players=players, settings=_default_game_settings())
+            game_settings = _default_game_settings()
+            session = GameSession(players=players, settings=game_settings)
             runtime = SessionRuntime(
                 session=session,
                 phase_duration=DEFAULT_PHASE_DURATION_SECONDS,
@@ -312,6 +314,7 @@ async def _register_connection(
                 session_code=session_code,
                 session=session,
                 runtime=runtime,
+                game_settings=game_settings,
                 players=players,
                 assignments={user_identifier: controlled_player},
                 user_connections={user_identifier: 1},
@@ -367,6 +370,7 @@ async def _register_connection(
                         phase=context.runtime.current_phase,
                         analytics=context.session.snapshot_analytics(),
                         remaining_seconds=context.runtime.remaining_seconds,
+                        settings=context.game_settings,
                     )
                 )
             )
@@ -408,6 +412,23 @@ def _cancel_auto_start(context: SessionContext) -> None:
     if context.auto_start_task is not None:
         context.auto_start_task.cancel()
         context.auto_start_task = None
+
+
+def _apply_settings(context: SessionContext, settings_payload: dict[str, Any]) -> None:
+    """Merge provided settings into the context and rebuild runtime."""
+    if context.session_started or context.runtime.has_started:
+        msg = "Session already running"
+        raise SessionJoinError(msg, {"reason": "already_running"})
+
+    current = context.game_settings.model_dump()
+    current.update(settings_payload)
+    try:
+        context.game_settings = GameSettings.model_validate(current)
+    except Exception as exc:
+        msg = "Invalid settings"
+        raise SessionJoinError(msg, {"reason": "invalid_settings", "error": str(exc)}) from exc
+
+    _refresh_unstarted_context(context)
 
 
 def _ensure_auto_start(context: SessionContext) -> None:
@@ -758,6 +779,7 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
                         analytics=context.session.snapshot_analytics(),
                         seniority=context.session.seniority_history,
                         tie_break_log=context.session.tie_break_log,
+                        settings=context.game_settings,
                     )
                 )
                 _ensure_auto_start(context)
@@ -773,27 +795,67 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
                 continue
 
             if isinstance(message, SessionControlRequest):
-                if message.command != "start":
+                if message.command == "start":
+                    started, detail = await _start_context_session(
+                        context,
+                        reason="manual",
+                    )
+                    if not started:
+                        await send(
+                            SessionControlAckResponse(
+                                command="start",
+                                started=False,
+                                detail=detail,
+                            )
+                        )
+                    continue
+
+                if message.command == "update_settings":
+                    if message.settings is None:
+                        await send(
+                            ErrorResponse(
+                                message="Missing settings payload",
+                                detail={},
+                            )
+                        )
+                        continue
+                    try:
+                        _apply_settings(
+                            context,
+                            message.settings.model_dump(),
+                        )
+                    except SessionJoinError as exc:
+                        await send(
+                            ErrorResponse(
+                                message="Cannot update settings",
+                                detail=exc.detail,
+                            )
+                        )
+                        continue
                     await send(
-                        ErrorResponse(
-                            message="Unsupported session command",
-                            detail={"command": message.command},
+                        SessionControlAckResponse(
+                            command="update_settings",
+                            started=False,
+                            detail={"updated": True},
+                        )
+                    )
+                    await context.runtime.broadcast(
+                        PhaseStatusResponse(
+                            month=context.session.month,
+                            phase=context.runtime.current_phase,
+                            analytics=context.session.snapshot_analytics(),
+                            remaining_seconds=context.runtime.remaining_seconds,
+                            settings=context.game_settings,
                         )
                     )
                     continue
 
-                started, detail = await _start_context_session(
-                    context,
-                    reason="manual",
-                )
-                if not started:
-                    await send(
-                        SessionControlAckResponse(
-                            command="start",
-                            started=False,
-                            detail=detail,
-                        )
+                await send(
+                    ErrorResponse(
+                        message="Unsupported session command",
+                        detail={"command": message.command},
                     )
+                )
                 continue
 
             if isinstance(message, HeartbeatRequest):
@@ -813,6 +875,7 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
                         phase=context.runtime.current_phase,
                         analytics=context.session.snapshot_analytics(),
                         remaining_seconds=context.runtime.remaining_seconds,
+                        settings=context.game_settings,
                     )
                 )
                 continue

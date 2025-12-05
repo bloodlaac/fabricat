@@ -8,14 +8,10 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field
 
-from fabricat_backend.game_logic.phases import (
-    GamePhase,
-    PhaseAnalytics,
-    PhaseReport,
-    PhaseTick,
-)
+from fabricat_backend.game_logic.phases import GamePhase, PhaseAnalytics, PhaseReport, PhaseTick
 from fabricat_backend.game_logic.session import (
     Bid,
+    GameSettings,
     SeniorityRollLogEntry,
     SenioritySnapshot,
 )
@@ -117,7 +113,8 @@ class SessionControlRequest(BaseModel):
     """Out-of-band command that controls the gameplay runtime."""
 
     type: Literal["session_control"]
-    command: Literal["start"]
+    command: Literal["start", "update_settings"]
+    settings: GameSettings | None = None
 
 
 InboundWsMessage = Annotated[
@@ -141,6 +138,7 @@ class SessionWelcomeResponse(BaseModel):
     analytics: PhaseAnalytics
     seniority: list[SenioritySnapshot]
     tie_break_log: list[SeniorityRollLogEntry]
+    settings: GameSettings
 
 
 class PhaseTickResponse(BaseModel):
@@ -174,6 +172,7 @@ class PhaseStatusResponse(BaseModel):
     phase: GamePhase
     analytics: PhaseAnalytics
     remaining_seconds: int | None = None
+    settings: GameSettings
 
 
 class ErrorResponse(BaseModel):
@@ -188,7 +187,7 @@ class SessionControlAckResponse(BaseModel):
     """Acknowledgement emitted after processing a control command."""
 
     type: Literal["session_control_ack"] = "session_control_ack"
-    command: Literal["start"]
+    command: Literal["start", "update_settings"]
     started: bool
     detail: dict[str, Any] = Field(default_factory=dict)
 
@@ -220,6 +219,7 @@ __all__ = [
     "PhaseStatusResponse",
     "PhaseTickResponse",
     "ProductionPlanPayload",
+    "GameSettings",
     "SessionControlAckResponse",
     "SessionControlRequest",
     "SessionWelcomeResponse",

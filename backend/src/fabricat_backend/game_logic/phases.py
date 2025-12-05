@@ -13,6 +13,7 @@ else:  # pragma: no cover - runtime fallback
     AsyncIterator = Any
 
 from pydantic import BaseModel, Field
+from pydantic.config import ConfigDict
 
 
 class GamePhase(StrEnum):
@@ -39,11 +40,13 @@ PHASE_SEQUENCE: tuple[GamePhase, ...] = (
     GamePhase.END_MONTH,
 )
 
-DEFAULT_PHASE_DURATION_SECONDS = 60
+DEFAULT_PHASE_DURATION_SECONDS = 15
 
 
 class PhaseTick(BaseModel):
     """Single countdown tick delivered to clients."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     phase: GamePhase
     remaining_seconds: int

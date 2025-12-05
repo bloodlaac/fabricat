@@ -53,6 +53,9 @@ export default function GamePage() {
   const [lastError, setLastError] = useState("");
   const [actionState, setActionState] = useState(initialActionState);
   const [playerCount, setPlayerCount] = useState(1);
+  const [settings, setSettings] = useState(null);
+  const [settingsDraft, setSettingsDraft] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const socketRef = useRef(null);
   const isRefreshingRef = useRef(false);
@@ -136,6 +139,47 @@ export default function GamePage() {
     error: "Ошибка",
   }[derivedStatus] || derivedStatus;
 
+  const updateSettings = () => {
+    if (!settingsDraft) return;
+    const payload = { ...settingsDraft };
+
+    const normalizeRange = (value) => {
+      if (Array.isArray(value)) return value.map((v) => Number(v) || 0);
+      return [0, 0];
+    };
+
+    payload.bank_raw_material_sell_volume_range = normalizeRange(
+      payload.bank_raw_material_sell_volume_range,
+    );
+    payload.bank_finished_good_buy_volume_range = normalizeRange(
+      payload.bank_finished_good_buy_volume_range,
+    );
+    payload.bank_raw_material_sell_min_price_range = normalizeRange(
+      payload.bank_raw_material_sell_min_price_range,
+    );
+    payload.bank_finished_good_buy_max_price_range = normalizeRange(
+      payload.bank_finished_good_buy_max_price_range,
+    );
+
+    const normalizeList = (value) =>
+      typeof value === "string"
+        ? value
+            .split(",")
+            .map((v) => Number(v.trim()))
+            .filter((v) => !Number.isNaN(v))
+        : value || [];
+
+    payload.available_loans = normalizeList(payload.available_loans);
+    payload.loan_terms_in_months = normalizeList(payload.loan_terms_in_months);
+
+    sendMessage({
+      type: "session_control",
+      command: "update_settings",
+      settings: payload,
+    });
+    setShowSettings(false);
+  };
+
   const handleMessage = (data) => {
     switch (data.type) {
       case "welcome":
@@ -144,6 +188,8 @@ export default function GamePage() {
         setMonth(data.month);
         setAnalytics(data.analytics);
         setPlayerCount(data.analytics?.players?.length || 1);
+        setSettings(data.settings);
+        setSettingsDraft(data.settings);
         setConnectionStatus("ready");
         setLastError("");
         break;
@@ -164,6 +210,10 @@ export default function GamePage() {
         setAnalytics(data.analytics);
         setTick((prev) => ({ ...prev, remaining_seconds: data.remaining_seconds }));
         setPlayerCount(data.analytics?.players?.length || playerCount);
+        if (data.settings) {
+          setSettings(data.settings);
+          setSettingsDraft((prev) => prev || data.settings);
+        }
         setConnectionStatus(
           data.remaining_seconds === undefined || data.remaining_seconds === null
             ? "ready"
@@ -462,6 +512,17 @@ export default function GamePage() {
         <div className="footer-controls">
           <button
             className="control-btn"
+            onClick={() => setShowSettings(true)}
+            disabled={connectionStatus !== "ready" || playerCount < 2}
+            style={{
+              visibility:
+                connectionStatus === "ready" && playerCount >= 2 ? "visible" : "hidden",
+            }}
+          >
+            Настройки
+          </button>
+          <button
+            className="control-btn"
             onClick={startSession}
             disabled={connectionStatus !== "ready" || playerCount < 2}
             style={{
@@ -473,6 +534,219 @@ export default function GamePage() {
           </button>
           <button className="leave-btn" onClick={handleLeave}>Покинуть игру</button>
         </div>
+
+        {showSettings && settingsDraft && (
+          <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <div className="modal-title">Настройки лобби</div>
+                <button className="card-close" onClick={() => setShowSettings(false)}>✖</button>
+              </div>
+              <div className="settings-grid">
+                <label className="setting-field">
+                  <span>Фабрик на старте</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.start_factory_count ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({ ...settingsDraft, start_factory_count: Number(e.target.value) })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Макс. месяцев</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.max_months ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({ ...settingsDraft, max_months: Number(e.target.value) })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Макс. фабрик</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.max_factories ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({ ...settingsDraft, max_factories: Number(e.target.value) })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Деньги банка на старте</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_start_money ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({ ...settingsDraft, bank_start_money: Number(e.target.value) })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Ссуды (через запятую)</span>
+                  <input
+                    type="text"
+                    value={
+                      Array.isArray(settingsDraft.available_loans)
+                        ? settingsDraft.available_loans.join(", ")
+                        : settingsDraft.available_loans ?? ""
+                    }
+                    onChange={(e) =>
+                      setSettingsDraft({ ...settingsDraft, available_loans: e.target.value })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Сроки ссуд (мес, через запятую)</span>
+                  <input
+                    type="text"
+                    value={
+                      Array.isArray(settingsDraft.loan_terms_in_months)
+                        ? settingsDraft.loan_terms_in_months.join(", ")
+                        : settingsDraft.loan_terms_in_months ?? ""
+                    }
+                    onChange={(e) =>
+                      setSettingsDraft({ ...settingsDraft, loan_terms_in_months: e.target.value })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Объем продажи сырья (min)</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_raw_material_sell_volume_range?.[0] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_raw_material_sell_volume_range: [
+                          Number(e.target.value),
+                          settingsDraft.bank_raw_material_sell_volume_range?.[1] ?? 0,
+                        ],
+                      })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Объем продажи сырья (max)</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_raw_material_sell_volume_range?.[1] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_raw_material_sell_volume_range: [
+                          settingsDraft.bank_raw_material_sell_volume_range?.[0] ?? 0,
+                          Number(e.target.value),
+                        ],
+                      })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Объем покупки товаров (min)</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_finished_good_buy_volume_range?.[0] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_finished_good_buy_volume_range: [
+                          Number(e.target.value),
+                          settingsDraft.bank_finished_good_buy_volume_range?.[1] ?? 0,
+                        ],
+                      })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Объем покупки товаров (max)</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_finished_good_buy_volume_range?.[1] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_finished_good_buy_volume_range: [
+                          settingsDraft.bank_finished_good_buy_volume_range?.[0] ?? 0,
+                          Number(e.target.value),
+                        ],
+                      })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Мин. цена сырья</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_raw_material_sell_min_price_range?.[0] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_raw_material_sell_min_price_range: [
+                          Number(e.target.value),
+                          settingsDraft.bank_raw_material_sell_min_price_range?.[1] ?? 0,
+                        ],
+                      })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Макс. цена сырья</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_raw_material_sell_min_price_range?.[1] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_raw_material_sell_min_price_range: [
+                          settingsDraft.bank_raw_material_sell_min_price_range?.[0] ?? 0,
+                          Number(e.target.value),
+                        ],
+                      })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Мин. цена покупки товара</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_finished_good_buy_max_price_range?.[0] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_finished_good_buy_max_price_range: [
+                          Number(e.target.value),
+                          settingsDraft.bank_finished_good_buy_max_price_range?.[1] ?? 0,
+                        ],
+                      })
+                    }
+                  />
+                </label>
+                <label className="setting-field">
+                  <span>Макс. цена покупки товара</span>
+                  <input
+                    type="number"
+                    value={settingsDraft.bank_finished_good_buy_max_price_range?.[1] ?? ""}
+                    onChange={(e) =>
+                      setSettingsDraft({
+                        ...settingsDraft,
+                        bank_finished_good_buy_max_price_range: [
+                          settingsDraft.bank_finished_good_buy_max_price_range?.[0] ?? 0,
+                          Number(e.target.value),
+                        ],
+                      })
+                    }
+                  />
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button className="leave-btn" onClick={() => setShowSettings(false)}>Отмена</button>
+                <button className="control-btn" onClick={updateSettings}>Сохранить</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
