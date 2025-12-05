@@ -1,0 +1,26 @@
+:root{
+  --bg-yellow: #FFEB70;
+  --yellow-deep: #FFD83D;
+  --bg-pink: #FFC0D9;
+  --text-dark: #222;
+  --muted: #666;
+  --card-radius: 12px;
+  --gap: 16px;
+  --container-width: 1100px;
+}
+
+/* Reset + глобальные */
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  font-family: Inter, Arial, sans-serif;
+  color:var(--text-dark);
+  background:#fff;
+}
+
+.container{
+  width: min(92%, var(--container-width));
+  margin: 0 auto;
+  padding: 24px;
+}

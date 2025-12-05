@@ -1,0 +1,55 @@
+.auth-form {
+  margin: auto; /* форма сама идеально центрируется */
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.2vw, 32px);
+  align-items: center;
+}
+
+/* кружок-иконка */
+.auth-user-icon {
+  width: clamp(70px, 10vw, 150px);
+  height: clamp(70px, 10vw, 150px);
+
+  background: #f3b4b4;
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: clamp(30px, 4vw, 60px);
+  color: #7d2e2e;
+}
+
+/* поля ввода */
+.auth-input {
+  width: clamp(260px, 50vw, 480px);
+
+  background: #f4b8b8 !important;
+  border: none !important;
+
+  padding: clamp(12px, 1.5vw, 20px) clamp(14px, 2vw, 26px);
+  font-size: clamp(16px, 1.6vw, 22px);
+
+  border-radius: 6px;
+  color: #7d2e2e;
+}
+
+/* кнопки */
+.auth-buttons {
+  margin-top: clamp(10px, 2vw, 30px);
+
+  display: flex;
+  gap: clamp(14px, 2vw, 30px);
+}
+
+.auth-btn {
+  background: #f8c7c7 !important;
+  color: #7d2e2e !important;
+
+  border-radius: 25px;
+  padding: clamp(10px, 1.8vw, 20px) clamp(25px, 4vw, 50px) !important;
+
+  font-size: clamp(16px, 1.8vw, 24px);
+}

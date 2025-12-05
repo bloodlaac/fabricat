@@ -1,0 +1,73 @@
+.card-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.create-card, .join-card {
+  background: #DCDFB0; /* зеленый фон */
+  width: 540px;
+  height: 542px;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.card-close {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #fff;
+  border: none;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.card-title {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-grow: 1;
+}
+
+.pink-input {
+  background: linear-gradient(180deg, #FFDEE6, #FFD4E6); /* розовые поля */
+  border: 1px dashed rgba(0,0,0,0.05);
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.card-btn {
+  margin-top: auto;
+  padding: 16px;
+  border-radius: 24px;
+  font-size: 18px;
+  background: #F8C7C7;
+  color: #7d2e2e;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+
+.card-btn:hover {
+  filter: brightness(1.1);
+}

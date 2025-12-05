@@ -1,0 +1,77 @@
+/* Общий фон */
+.wr-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  background: #faeedc;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+
+  z-index: 9999; /* всегда поверх всего */
+}
+
+/* Верхняя часть */
+.wr-header {
+  width: 90%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Иконки назад и настройки */
+.wr-icon {
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: #6c6c3d;
+  padding: 8px;
+}
+
+/* Розовая "таблетка" */
+.wr-title {
+  background: #f8c7c7;
+  padding: 10px 26px;
+  border-radius: 20px;
+  font-size: 20px;
+  color: #7d2e2e;
+}
+
+/* Карточка игроков */
+.wr-card {
+  margin-top: 28px;
+  width: 90%;
+  max-width: 900px;
+  background: #f0e6d4;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #d0c4b5;
+}
+
+/* Заголовок в карточке */
+.wr-card-title {
+  font-size: 22px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #806f5a;
+}
+
+/* Одна строчка игрока */
+.wr-player {
+  padding: 12px 0;
+  border-bottom: 1px solid #b8a897;
+  font-size: 18px;
+  color: #7d2e2e;
+}
+
+.wr-player:last-child {
+  border-bottom: none;
+}

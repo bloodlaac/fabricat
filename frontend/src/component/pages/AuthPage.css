@@ -1,0 +1,74 @@
+.auth-page {
+  height: 100vh;
+  width: 100%;
+  background: #faeedc;
+  padding: 0;
+  margin: 0;
+}
+
+.auth-container {
+  /* теперь контейнер = весь экран */
+  width: 100vw;
+  height: 100vh;
+
+  background: #faeedc;
+  border-radius: 0; /* убираем скругления, чтобы совпадало с экраном */
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 40px clamp(20px, 4vw, 60px);
+  box-sizing: border-box;
+}
+
+/* кнопка закрытия */
+.auth-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  border: none;
+  background: #ffffffd0;
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  cursor: pointer;
+  font-size: clamp(14px, 1.5vw, 20px);
+  color: #7d2e2e;
+}
+
+.auth-title {
+  background: #f3b4b4;
+  color: #7d2e2e;
+
+  text-align: center;
+  padding: clamp(12px, 2vw, 22px);
+  border-radius: 40px;
+
+  font-size: clamp(20px, 3vw, 38px);
+  margin: 0 auto;
+  width: fit-content;
+}
+
+/* кнопка Справка */
+.rules-link {
+  position: absolute;
+  left: 30px;
+  bottom: 30px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #7d2e2e;
+  cursor: pointer;
+
+  font-size: clamp(16px, 1.7vw, 24px);
+}
+
+.rules-link:hover {
+  opacity: 0.7;
+}

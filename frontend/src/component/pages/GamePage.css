@@ -1,0 +1,114 @@
+html, body { 
+  margin: 0; 
+  padding: 0; 
+  overflow: hidden; 
+} 
+.game-page { 
+  display: flex; 
+  width: 100vw; 
+  height: 100vh; 
+} 
+.div1 { 
+  flex: 2; 
+  background: #FDF5E6; 
+  display: grid; 
+} 
+.grid-container { 
+  display: grid; 
+  width: 100%; 
+  height: 100%; 
+  grid-template-columns: repeat(10, 1fr); 
+  grid-template-rows: repeat(9, 1fr); /* строго 9 рядов */ 
+} 
+.grid-cell { 
+  border: 1px solid rgba(220, 223, 176, 0.35); 
+  box-sizing: border-box; 
+}
+.div2 {
+  flex: 1;
+  background: #F9D0CE;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* Верхняя строка: никнейм + аватар */
+.user-info {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.nickname {
+  background: #FFF6F6;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  color: #7d2e2e;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #CFA0A0; /* сюда можно поставить изображение через background-image */
+}
+
+/* Счётчики */
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  background: #FFF6F6;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-weight: bold;
+  color: #7d2e2e;
+}
+
+/* Кнопки с круглыми изображениями */
+.action-buttons {
+  display: flex;
+  gap: 20px; /* увеличенный отступ между кнопками */
+  justify-content: center; /* по центру по оси X */
+  margin-bottom: 16px;
+}
+
+.circle-btn {
+  width: 80px;   /* увеличили диаметр */
+  height: 80px;  /* увеличили диаметр */
+  border-radius: 50%;
+  background: #CFA0A0;
+  border: none;
+  cursor: pointer;
+}
+
+/* Пропустить ход */
+.skip-btn {
+  width: 160px;      /* увеличили ширину */
+  padding: 16px;     /* увеличили внутренние отступы */
+  border-radius: 20px; 
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  margin-bottom: 16px;
+  align-self: center;  /* по центру по оси X */
+}
+
+
+/* Кнопка покинуть игру внизу */
+.leave-btn {
+  margin-top: auto; /* прижимает к низу */
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+}

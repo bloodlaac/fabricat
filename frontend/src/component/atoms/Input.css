@@ -1,0 +1,7 @@
+.input-base {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  font-size: 15px;
+}

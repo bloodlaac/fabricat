@@ -1,0 +1,1382 @@
+
+===== C:\my_dump\study\management\management_site\src\App.css =====
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\App.jsx =====
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AuthPage from "./component/pages/AuthPage";
+import AccountPage from "./component/pages/AccountPage";
+import GamePage from "./component/pages/GamePage";
+
+import "./index.css";
+
+export default function App(){
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AuthPage/>}/>
+        <Route path="/account" element={<AccountPage/>}/>
+        <Route path="/game" element={<GamePage/>}/>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\index.css =====
+:root{
+  --bg-yellow: #FFEB70;
+  --yellow-deep: #FFD83D;
+  --bg-pink: #FFC0D9;
+  --text-dark: #222;
+  --muted: #666;
+  --card-radius: 12px;
+  --gap: 16px;
+  --container-width: 1100px;
+}
+
+/* Reset + глобальные */
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  font-family: Inter, Arial, sans-serif;
+  color:var(--text-dark);
+  background:#fff;
+}
+
+.container{
+  width: min(92%, var(--container-width));
+  margin: 0 auto;
+  padding: 24px;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\main.jsx =====
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+
+===== C:\my_dump\study\management\management_site\src\assets\react.svg =====
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+
+===== C:\my_dump\study\management\management_site\src\component\atoms\Button.css =====
+.btn-base {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\atoms\Button.jsx =====
+import React from "react";
+import "./Button.css";
+
+export default function Button({ children, className="", ...rest }) {
+  return (
+    <button className={`btn-base ${className}`} {...rest}>
+      {children}
+    </button>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\atoms\Input.css =====
+.input-base {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  font-size: 15px;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\atoms\Input.jsx =====
+import React from "react";
+import "./Input.css";
+
+export default function Input({ placeholder, type = "text", className="", ...rest }) {
+  return (
+    <input 
+      className={`input-base ${className}`} 
+      placeholder={placeholder} 
+      type={type} 
+      {...rest} 
+    />
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\atoms\Label.jsx =====
+
+
+===== C:\my_dump\study\management\management_site\src\component\auth\AuthForm.css =====
+.auth-form {
+  margin: auto; /* форма сама идеально центрируется */
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.2vw, 32px);
+  align-items: center;
+}
+
+/* кружок-иконка */
+.auth-user-icon {
+  width: clamp(70px, 10vw, 150px);
+  height: clamp(70px, 10vw, 150px);
+
+  background: #f3b4b4;
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: clamp(30px, 4vw, 60px);
+  color: #7d2e2e;
+}
+
+/* поля ввода */
+.auth-input {
+  width: clamp(260px, 50vw, 480px);
+
+  background: #f4b8b8 !important;
+  border: none !important;
+
+  padding: clamp(12px, 1.5vw, 20px) clamp(14px, 2vw, 26px);
+  font-size: clamp(16px, 1.6vw, 22px);
+
+  border-radius: 6px;
+  color: #7d2e2e;
+}
+
+/* кнопки */
+.auth-buttons {
+  margin-top: clamp(10px, 2vw, 30px);
+
+  display: flex;
+  gap: clamp(14px, 2vw, 30px);
+}
+
+.auth-btn {
+  background: #f8c7c7 !important;
+  color: #7d2e2e !important;
+
+  border-radius: 25px;
+  padding: clamp(10px, 1.8vw, 20px) clamp(25px, 4vw, 50px) !important;
+
+  font-size: clamp(16px, 1.8vw, 24px);
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\auth\AuthForm.jsx =====
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./AuthForm.css";
+import Input from "../atoms/Input";
+import Button from "../atoms/Button";
+import RegistrationForm from "./RegistrationForm"; // импортируем форму регистрации
+
+export default function AuthForm() {
+  const navigate = useNavigate();
+  const [showRegistration, setShowRegistration] = useState(false);
+
+  const handleLogin = () => {
+    // проверка логина/пароля при необходимости
+    navigate("/account");
+  };
+
+  const handleShowRegistration = () => {
+    setShowRegistration(true); // переключаемся на форму регистрации
+  };
+
+  const handleBackToLogin = () => {
+    setShowRegistration(false); // возвращаемся на форму логина
+  };
+
+  if (showRegistration) {
+    return <RegistrationForm onBack={handleBackToLogin} />; // показываем форму регистрации
+  }
+
+  return (
+    <div className="auth-form">
+      <div className="auth-user-icon">👤</div>
+
+      <Input placeholder="Логин" className="auth-input" />
+      <Input placeholder="Пароль" type="password" className="auth-input" />
+
+      <div className="auth-buttons">
+        <Button className="auth-btn" onClick={handleLogin}>
+          Вход
+        </Button>
+        <Button className="auth-btn" onClick={handleShowRegistration}>
+          Регистрация
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\auth\RegistrationForm.css =====
+.reg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* теперь прижато к верхней части */
+  padding-top: 5vh; /* отступ сверху, регулируй по вкусу */
+  background: rgba(250, 238, 220, 0.5);
+  z-index: 1000;
+}
+
+.reg-card {
+  width: 50vw;
+  height: 70vh;
+  background: #DCDFB0;
+  padding: 50px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-family: Inter, Arial, sans-serif;
+  color: #7d2e2e;
+  position: relative;
+}
+
+
+/* Верхний блок */
+.reg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.avatar-select {
+  font-size: 60px; /* увеличили аватар */
+  background: #f3b4b4;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reg-title {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+/* Поля ввода */
+.reg-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* увеличено расстояние между полями */
+}
+
+.reg-input {
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: none;
+  background: #f3b4b4; /* розовый градиент */
+  font-size: 22px;
+  color: #7d2e2e;
+}
+
+/* Кнопки */
+.reg-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px; /* увеличено расстояние до кнопок */
+}
+
+.reg-back {
+  background: #ffffffd0;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 16px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.reg-submit {
+  background: #f8c7c7;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 16px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #7d2e2e;
+  transition: filter 0.2s;
+}
+
+.reg-submit:hover {
+  filter: brightness(1.1);
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\auth\RegistrationForm.jsx =====
+import React from "react";
+import "./RegistrationForm.css";
+import Input from "../atoms/Input";
+import Button from "../atoms/Button";
+
+export default function RegistrationForm({ onBack }) {
+  return (
+    <div className="reg-overlay">
+      <div className="reg-card">
+        <div className="reg-header">
+          <div className="avatar-select">👤</div>
+          <div className="reg-title">Регистрация</div>
+        </div>
+
+        <div className="reg-fields">
+          <Input placeholder="Имя" className="reg-input" />
+          <Input placeholder="Email" className="reg-input" />
+          <Input placeholder="Пароль" type="password" className="reg-input" />
+          <Input placeholder="Никнейм" className="reg-input" />
+        </div>
+
+        <div className="reg-buttons">
+          <Button onClick={onBack} className="reg-back">
+            ← Назад
+          </Button>
+          <Button className="reg-submit">
+            Зарегистрироваться
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\auth\Rules.css =====
+.rules-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3); /* затемненный фон вокруг формы */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.rules-card {
+  background: #DCDFB0; /* зелёный фон формы */
+  padding: 24px;
+  border-radius: 16px;
+  width: 70%;  /* размер как у формы регистрации */
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.rules-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #fff;
+  border: none;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.rules-title {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+  color: #222;
+}
+
+.rules-text {
+  background: #FFD4E6; /* жёлтое поле для текста */
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 12px;
+  padding: 12px;
+  flex-grow: 1;
+  resize: none;
+  overflow-y: auto;
+  font-size: 16px;
+  color: #222;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\auth\Rules.jsx =====
+import React from "react";
+import "./Rules.css";
+
+export default function Rules({ onClose }) {
+  return (
+    <div className="rules-overlay">
+      <div className="rules-card">
+        <button className="rules-close" onClick={onClose}>✖</button>
+        <h3 className="rules-title">Справка игры</h3>
+        <textarea
+          className="rules-text"
+          value={"Если вы получили «Разрешение» (которое определяется как право на использование, доступ и потребление Сервисов и Программного обеспечения) от организации или группы, включая помимо прочего коммерческое предприятие или любую другую коммерческую организацию, государственную организацию, некоммерческую организацию или учебное заведение (каждое из них — «Предприятие») в рамках одного из бизнес-планов Adobe (например, Creative Cloud Pro для команд, Creative Cloud для рабочих групп, Creative Cloud для организаций или Document Cloud), то (A) вы являетесь «Бизнес-пользователем» такого Предприятия, (B) ваш профиль Adobe, связанный с таким Разрешением, является «Бизнес-профилем» и (C) все отсылки к «вам» в Условиях будут означать такое Предприятие и его Бизнес-пользователей, в зависимости от обстоятельств. Если вы являетесь Бизнес-пользователем, вы соглашаетесь с тем, что в связи с получением вами Разрешений от такого Предприятия (1) Adobe может предоставить такому Предприятию возможность доступа к вашему Бизнес-профилю и всему Содержимому в нем, его использования, удаления, сохранения и управления им, независимо от того, было ли оно загружено или импортировано до или после даты последнего обновления Условий; (2) использование вами Сервисов и Программного обеспечения регулируется соглашением такого Предприятия с Adobe; (3) Adobe может предоставлять такому Предприятию вашу личную информацию. Доступ к дополнительным Разрешениям («Дополнительные услуги») может предоставляться любым пользователям, добавленным в Admin Console Предприятия (согласно определению в Дополнительных условиях для бизнес-клиентов, изложенных в разделе 1.2), и такие пользователи будут считаться Бизнес-пользователями. Если вы являетесь Бизнес-пользователем с Разрешениями от нескольких Предприятий, вам может быть предоставлен отдельный Бизнес-профиль для каждого Предприятия. Будучи Бизнес-пользователем, вы можете иметь различные соглашения с Предприятием или обязательства перед ним, которые могут влиять на ваш Бизнес-профиль или ваш Контент (согласно определениям в разделе 4.1). Adobe не несет ответственности за любое нарушение вами таких соглашений или обязательств. Если вы не получили Разрешения от Предприятия (например, вы подписались на Creative Cloud Pro для частных лиц и получили Разрешения в рамках этого плана), то (a) вы являетесь «Индивидуальным пользователем»; (b) ваш профиль Adobe является личным профилем; (c) вы сохраняете исключительный доступ ко всему Контенту в вашей личной учетной записи или личном профиле (если иное не указано в Политике конфиденциальности) и контроль над ним; и (d) все ссылки на «вас» в настоящих Условиях будут означать вас как частное лицо. Если вы получили Разрешения по личному плану и от Предприятия, то вы являетесь и Индивидуальным пользователем, и Бизнес-пользователем. Вы являетесь Индивидуальным пользователем, когда используете Разрешения, полученные вами по личному плану, и Бизнес-пользователем — когда используете Разрешения, предоставленные Предприятием.1.4 Домены электронной почты Предприятия"}
+          readOnly
+        />
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\ActionInfo.css =====
+.action-info{background:linear-gradient(0deg,var(--yellow-deep),var(--bg-yellow));padding:12px}
+.info-text{margin-top:8px;color:var(--text-dark)}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\ActionInfo.jsx =====
+import React from "react";
+import "./ActionInfo.css";
+import Card from "../ui/Card";
+
+export default function ActionInfo({text}){
+  return (
+    <Card className="action-info">
+      <h5>Информация о действии</h5>
+      <div className="info-text">{text || "Здесь появится подсказка/описание действия."}</div>
+    </Card>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\GameField.css =====
+.game-field{
+  flex:1;
+  background: linear-gradient(0deg, var(--yellow-deep), var(--bg-yellow));
+  padding:18px;
+  min-height:480px;
+}
+
+.board-placeholder{
+  margin-top:12px;
+  height:380px;
+  border-radius:10px;
+  background: linear-gradient(180deg,#fff,#fff6cc);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  border:2px dashed rgba(0,0,0,0.06);
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\GameField.jsx =====
+import React from "react";
+import "./GameField.css";
+import Card from "../ui/Card";
+
+export default function GameField(){
+  return (
+    <Card className="game-field">
+      <h4>Поле игры</h4>
+      <div className="board-placeholder">Здесь будет игровое поле (заглушка)</div>
+    </Card>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\GameStats.css =====
+.stats-card{padding:12px}
+.stats-list{margin:12px 0 0 0;padding-left:18px;color:var(--muted)}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\GameStats.jsx =====
+import React from "react";
+import "./GameStats.css";
+import Card from "../ui/Card";
+
+export default function GameStats(){
+  return (
+    <Card className="stats-card">
+      <h4>Статистика</h4>
+      <ul className="stats-list">
+        <li>Игры: 12</li>
+        <li>Победы: 7</li>
+        <li>Лучший результат: 124</li>
+      </ul>
+    </Card>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\PlayerActions.css =====
+.actions-card{background:linear-gradient(180deg,var(--bg-pink),#FFD4E6);padding:12px;border-radius:12px}
+.action-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.score{margin-top:12px;font-weight:600}
+
+
+===== C:\my_dump\study\management\management_site\src\component\game\PlayerActions.jsx =====
+import React from "react";
+import "./PlayerActions.css";
+import Button from "../atoms/Button";
+
+export default function PlayerActions(){
+  return (
+    <div className="actions-card">
+      <h4>Действия игрока</h4>
+      <div className="action-buttons">
+        <Button variant="secondary">Действие 1</Button>
+        <Button variant="secondary">Действие 2</Button>
+      </div>
+      <div className="score">Счёт: 0</div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\lobby\GameSettings.css =====
+.settings-card{background:#fff;padding:16px;border-radius:12px}
+
+
+===== C:\my_dump\study\management\management_site\src\component\lobby\GameSettings.jsx =====
+import React from "react";
+import "./GameSettings.css";
+import Input from "../atoms/Input";
+import Button from "../atoms/Button";
+
+export default function GameSettings(){
+  return (
+    <div className="settings-card">
+      <h4>Параметры игры</h4>
+      <Input placeholder="Время (с)" />
+      <Input placeholder="Макс. очков" />
+      <Button>Сохранить</Button>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\lobby\WaitingRoom.css =====
+/* Общий фон */
+.wr-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  background: #faeedc;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+
+  z-index: 9999; /* всегда поверх всего */
+}
+
+/* Верхняя часть */
+.wr-header {
+  width: 90%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Иконки назад и настройки */
+.wr-icon {
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: #6c6c3d;
+  padding: 8px;
+}
+
+/* Розовая "таблетка" */
+.wr-title {
+  background: #f8c7c7;
+  padding: 10px 26px;
+  border-radius: 20px;
+  font-size: 20px;
+  color: #7d2e2e;
+}
+
+/* Карточка игроков */
+.wr-card {
+  margin-top: 28px;
+  width: 90%;
+  max-width: 900px;
+  background: #f0e6d4;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #d0c4b5;
+}
+
+/* Заголовок в карточке */
+.wr-card-title {
+  font-size: 22px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #806f5a;
+}
+
+/* Одна строчка игрока */
+.wr-player {
+  padding: 12px 0;
+  border-bottom: 1px solid #b8a897;
+  font-size: 18px;
+  color: #7d2e2e;
+}
+
+.wr-player:last-child {
+  border-bottom: none;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\lobby\WaitingRoom.jsx =====
+import React from "react";
+import "./WaitingRoom.css";
+import Button from "../atoms/Button";
+
+export default function WaitingRoom({ onBack, onSettings }) {
+  return (
+    <div className="wr-page">
+      
+      <div className="wr-header">
+        <button className="wr-icon" onClick={onBack}>←</button>
+
+        <div className="wr-title">Ожидание игроков</div>
+
+        <button className="wr-icon" onClick={onSettings}>⚙</button>
+      </div>
+
+      <div className="wr-card">
+        <div className="wr-card-title">Игроки</div>
+
+        <div className="wr-player">login2005@mail.ru</div>
+        <div className="wr-player">login2005@mail.ru</div>
+        <div className="wr-player">login2005@mail.ru</div>
+      </div>
+
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\pages\AccountPage.css =====
+.account-page {
+  height: 100vh;
+  width: 100%;
+  background: #faeedc;
+  position: relative;
+  font-family: Inter, Arial, sans-serif;
+  color: #7d2e2e;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Верхний бар */
+.account-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.logout-btn {
+  background: #ffffffd0;
+  border: none; /* убрали обводку */
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 20px; /* уменьшили */
+  cursor: pointer;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-nick {
+  font-size: 20px; /* уменьшили */
+  font-weight: 600;
+}
+
+.user-avatar {
+  width: 60px; /* уменьшили */
+  height: 60px;
+  border-radius: 50%;
+  background: #f3b4b4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  border: none; /* убрали черную обводку */
+}
+
+/* Центральная часть с кнопками */
+.account-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.account-btn {
+  width: 280px;        /* фиксированная ширина */
+  height: 70px;        /* фиксированная высота */
+  border-radius: 36px;
+  font-size: 28px;
+  background: #f8c7c7;
+  color: #7d2e2e;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: filter 0.2s;
+}
+
+.account-btn:hover {
+  filter: brightness(1.1);
+}
+
+
+/* Кнопка правил */
+.rules-link {
+  position: absolute;
+  left: 32px;
+  bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7d2e2e;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.rules-link:hover {
+  opacity: 0.7;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\pages\AccountPage.jsx =====
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./AccountPage.css"; 
+import CreateGameCard from "../ui/CreateGameCard";
+import JoinGameCard from "../ui/JoinGameCard";
+import StatsCard from "../ui/StatsCard"; // импортируем карточку статистики
+import Rules from "../auth/Rules";
+export default function AccountPage() {
+  const navigate = useNavigate();
+  const [activeCard, setActiveCard] = useState(null); // null | "create" | "join" | "stats"
+  const [showRules, setShowRules] = useState(false);
+  const handleShowRules = () => {
+    setShowRules(true);
+  };
+  const handleCloseRules = () => {
+    setShowRules(false);
+  };
+
+  const handleLogout = () => {
+    navigate("/"); // возврат на страницу авторизации
+  };
+
+  const handleRules = () => {
+    alert("Справка — тут пока заглушка");
+  };
+
+  return (
+    <div className="account-page">
+      {/* Верхний бар */}
+      <div className="account-header">
+        <button className="logout-btn" onClick={handleLogout}>Выйти</button>
+
+        <div 
+          className="user-info" 
+          onClick={() => setActiveCard("stats")} // открытие StatsCard
+          style={{ cursor: "pointer" }}
+        >
+          <span className="user-nick">Никнейм</span>
+          <div className="user-avatar">А</div>
+        </div>
+      </div>
+
+      {/* Центральная часть с кнопками */}
+      <div className="account-center">
+        <button className="account-btn" onClick={() => setActiveCard("create")}>
+          Создать
+        </button>
+        <button className="account-btn" onClick={() => setActiveCard("join")}>
+          Присоеденится
+        </button>
+      </div>
+
+      {/* Кнопка правил */}
+      <div className="rules-link" onClick={handleShowRules}>
+        Справка
+      </div>
+      {showRules && <Rules onClose={handleCloseRules} />}
+      {/* Отображение карточек поверх страницы */}
+      {activeCard === "create" && (
+        <CreateGameCard onClose={() => setActiveCard(null)} />
+      )}
+      {activeCard === "join" && (
+        <JoinGameCard onClose={() => setActiveCard(null)} />
+      )}
+      {activeCard === "stats" && (
+        <StatsCard onClose={() => setActiveCard(null)} />
+      )}
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\pages\AuthPage.css =====
+.auth-page {
+  height: 100vh;
+  width: 100%;
+  background: #faeedc;
+  padding: 0;
+  margin: 0;
+}
+
+.auth-container {
+  /* теперь контейнер = весь экран */
+  width: 100vw;
+  height: 100vh;
+
+  background: #faeedc;
+  border-radius: 0; /* убираем скругления, чтобы совпадало с экраном */
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 40px clamp(20px, 4vw, 60px);
+  box-sizing: border-box;
+}
+
+/* кнопка закрытия */
+.auth-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  border: none;
+  background: #ffffffd0;
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  cursor: pointer;
+  font-size: clamp(14px, 1.5vw, 20px);
+  color: #7d2e2e;
+}
+
+.auth-title {
+  background: #f3b4b4;
+  color: #7d2e2e;
+
+  text-align: center;
+  padding: clamp(12px, 2vw, 22px);
+  border-radius: 40px;
+
+  font-size: clamp(20px, 3vw, 38px);
+  margin: 0 auto;
+  width: fit-content;
+}
+
+/* кнопка Справка */
+.rules-link {
+  position: absolute;
+  left: 30px;
+  bottom: 30px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #7d2e2e;
+  cursor: pointer;
+
+  font-size: clamp(16px, 1.7vw, 24px);
+}
+
+.rules-link:hover {
+  opacity: 0.7;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\pages\AuthPage.jsx =====
+import React, { useState } from "react";
+import "./AuthPage.css";
+import Rules from "../auth/Rules";
+import AuthForm from "../auth/AuthForm";
+
+export default function AuthPage() {
+  const [showRules, setShowRules] = useState(false);
+
+  const handleShowRules = () => {
+    setShowRules(true);
+  };
+
+  const handleCloseRules = () => {
+    setShowRules(false);
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-root-scale">
+        <div className="auth-container">
+          <button className="auth-close">✖</button>
+
+          <h1 className="auth-title">Игра менеджмент</h1>
+
+          <AuthForm />
+
+          <div className="rules-link" onClick={handleShowRules}>
+            <span className="rules-icon">📖</span>
+            <span>Справка</span>
+          </div>
+
+          {showRules && <Rules onClose={handleCloseRules} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\pages\GamePage.css =====
+.game-page{
+  min-height:100vh;
+  background: linear-gradient(180deg, #FFFDF7, #F7F9FF);
+  padding:48px 0;
+}
+
+.game-layout{display:flex;gap:24px;align-items:flex-start}
+.right-col{width:360px;display:flex;flex-direction:column;gap:16px}
+
+
+===== C:\my_dump\study\management\management_site\src\component\pages\GamePage.jsx =====
+import React from "react";
+import "./GamePage.css";
+import GameField from "../game/GameField";
+import PlayerActions from "../game/PlayerActions";
+import GameStats from "../game/GameStats";
+
+
+export default function GamePage(){
+  return (
+    <div className="game-page">
+      <div className="container game-layout">
+        <GameField />
+        <div className="right-col">
+          <PlayerActions />
+          <GameStats />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\Card.css =====
+.card-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.create-card, .join-card {
+  background: #DCDFB0; /* зеленый фон */
+  width: 540px;
+  height: 542px;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.card-close {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #fff;
+  border: none;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.card-title {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-grow: 1;
+}
+
+.pink-input {
+  background: linear-gradient(180deg, #FFDEE6, #FFD4E6); /* розовые поля */
+  border: 1px dashed rgba(0,0,0,0.05);
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.card-btn {
+  margin-top: auto;
+  padding: 16px;
+  border-radius: 24px;
+  font-size: 18px;
+  background: #F8C7C7;
+  color: #7d2e2e;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+
+.card-btn:hover {
+  filter: brightness(1.1);
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\Card.jsx =====
+import React from "react";
+import "./Card.css";
+
+export default function Card({children, className=""}){
+  return <div className={`card ${className}`}>{children}</div>
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\CreateGameCard.jsx =====
+import React, { useState } from "react";
+import "./Card.css";
+import Input from "../atoms/Input";
+import Button from "../atoms/Button";
+import WaitingRoom from "../lobby/WaitingRoom"; // ← путь к комнате ожидания
+
+export default function CreateGameCard({ onClose }) {
+  const [waiting, setWaiting] = useState(false);
+
+  // Когда пользователь нажимает "Создать"
+  const handleCreate = () => {
+    setWaiting(true); // переключаемся на комнату ожидания
+  };
+
+  // Если игра создана → показываем комнату ожидания
+  if (waiting) {
+    return <WaitingRoom onClose={onClose} />;
+  }
+
+  return (
+    <div className="card-overlay">
+      <div className="create-card">
+        <button className="card-close" onClick={onClose}>✖</button>
+        <h3 className="card-title">Создать игру</h3>
+
+        <div className="card-fields">
+          <Input placeholder="Ключ лобби" className="pink-input" />
+          <Input placeholder="Время игры" className="pink-input" />
+          <Input placeholder="Кол-во ходов" className="pink-input" />
+        </div>
+
+        <Button className="card-btn" onClick={handleCreate}>
+          Создать
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\ErrorMessage.css =====
+.error-box{
+  background:#FFE7E9;
+  color:#b00020;
+  padding:10px 12px;
+  border-radius:8px;
+  margin-top:8px;
+  font-size:14px;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\ErrorMessage.jsx =====
+import React from "react";
+import "./ErrorMessage.css";
+
+export default function ErrorMessage({text}){
+  if(!text) return null;
+  return <div className="error-box">{text}</div>;
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\GameModal.jsx =====
+import React from "react";
+import CreateGameCard from "./CreateGameCard";
+import JoinGameCard from "./JoinGameCard";
+
+export default function GameModal({ type, onClose }) {
+  // type = "create" | "join"
+  return (
+    <>
+      {type === "create" && <CreateGameCard onClose={onClose} />}
+      {type === "join" && <JoinGameCard onClose={onClose} />}
+    </>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\JoinGameCard.jsx =====
+import React from "react";
+import "./Card.css";
+import Input from "../atoms/Input";
+import Button from "../atoms/Button";
+
+export default function JoinGameCard({ onClose }) {
+  return (
+    <div className="card-overlay">
+      <div className="join-card">
+        <button className="card-close" onClick={onClose}>✖</button>
+        <h3 className="card-title">Вход в игру</h3>
+        <div className="card-fields">
+          <Input placeholder="Ключ лобби" className="pink-input" />
+        </div>
+        <Button className="card-btn">Присоединиться</Button>
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\StatsCard.css =====
+.card-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.stats-card {
+  background: #DCDFB0; /* зеленый фон как у остальных карточек */
+  width: 1000px;
+  height: 600px;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.card-close {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #fff;
+  border: none;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.card-title {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 24px;
+  color: #7d2e2e;
+
+  /* Овал */
+  background: #faeedc;
+  padding: 10px 40px;
+  border-radius: 40px;
+
+  display: inline-block;
+  align-self: center;
+}
+
+/* Контейнер под заголовками таблицы */
+.stats-table th {
+  background: #faeedc; /* чистый жёлтый */
+  position: sticky;
+  top: 0;
+  z-index: 2; 
+}
+
+.stats-table-container {
+  flex: 1;
+  background: #FFD4E6; /* желтый фон для таблицы */
+  border-radius: 12px;
+  overflow-y: auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 20px;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+}
+
+.stats-table th {
+  background: #faeedc; /* чуть ярче для заголовка */
+  position: sticky;
+  top: 0;
+}
+
+.stats-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+
+===== C:\my_dump\study\management\management_site\src\component\ui\StatsCard.jsx =====
+import React from "react";
+import "./StatsCard.css";
+
+export default function StatsCard({ onClose }) {
+  const gamesData = [
+    { game: "Игра 1", score: 120, esm: 50, egp: 30 },
+    { game: "Игра 2", score: 200, esm: 70, egp: 40 },
+    { game: "Игра 3", score: 150, esm: 60, egp: 35 },
+    { game: "Игра 4", score: 180, esm: 65, egp: 45 },
+    { game: "Игра 5", score: 210, esm: 80, egp: 50 },
+    { game: "Игра 6", score: 190, esm: 72, egp: 42 },
+    { game: "Игра 7", score: 160, esm: 55, egp: 38 },
+    { game: "Игра 8", score: 175, esm: 68, egp: 44 },
+  ];
+
+  return (
+    <div className="card-overlay">
+      <div className="stats-card">
+        <button className="card-close" onClick={onClose}>✖</button>
+        <h2 className="card-title">Статистика</h2>
+
+        <div className="stats-table-container">
+          <table className="stats-table">
+            <thead>
+              <tr>
+                <th>Игры</th>
+                <th>Счет</th>
+                <th>ЕСМ</th>
+                <th>ЕГП</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gamesData.map((row, idx) => (
+                <tr key={idx}>
+                  <td>{row.game}</td>
+                  <td>{row.score}</td>
+                  <td>{row.esm}</td>
+                  <td>{row.egp}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+===== C:\my_dump\study\management\management_site\public\vite.svg =====
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>

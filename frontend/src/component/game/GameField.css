@@ -1,0 +1,18 @@
+.game-field{
+  flex:1;
+  background: linear-gradient(0deg, var(--yellow-deep), var(--bg-yellow));
+  padding:18px;
+  min-height:480px;
+}
+
+.board-placeholder{
+  margin-top:12px;
+  height:380px;
+  border-radius:10px;
+  background: linear-gradient(180deg,#fff,#fff6cc);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  border:2px dashed rgba(0,0,0,0.06);
+}
