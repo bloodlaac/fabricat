@@ -1,5 +1,6 @@
 """Session manager for multiplayer and multi-session games."""
 
+from collections import Counter
 from collections.abc import Callable
 from datetime import UTC, datetime
 from math import ceil
@@ -155,6 +156,23 @@ class SenioritySnapshot(BaseModel):
 
     month: int
     order: list[int]
+
+
+class PlayerFinalStats(BaseModel):
+    """Summary statistics captured when the game concludes."""
+
+    player_id: int
+    capital: float
+    place: int
+    is_bankrupt: bool
+    is_top1: bool
+    has_debt: bool
+    total_debt: float
+    factories_basic: int
+    factories_auto: int
+    factories_builds_basic: int
+    factories_builds_auto: int
+    factories_upgrades: int
 
 
 class Player(BaseModel):
@@ -604,6 +622,49 @@ class GameSession:
             - loan_debt
             - outstanding_payments
         )
+
+    def build_final_player_stats(self) -> list[PlayerFinalStats]:
+        """Summarize each player's end-of-game state."""
+        capitals = {
+            player.id_: self.calculate_capital(player) for player in self._players
+        }
+        ordered = sorted(
+            self._players,
+            key=lambda player: (
+                capitals[player.id_],
+                -player.priority,
+                -player.id_,
+            ),
+            reverse=True,
+        )
+
+        results: list[PlayerFinalStats] = []
+        for idx, player in enumerate(ordered, start=1):
+            debt = sum(
+                loan.amount
+                for loan in player.loans
+                if loan.loan_status == "in_progress"
+            )
+            counts = Counter(factory.factory_type for factory in player.factories)
+
+            results.append(
+                PlayerFinalStats(
+                    player_id=player.id_,
+                    capital=capitals[player.id_],
+                    place=idx,
+                    is_bankrupt=player.is_bankrupt,
+                    is_top1=idx == 1,
+                    has_debt=debt > 0,
+                    total_debt=debt,
+                    factories_basic=counts.get("basic", 0),
+                    factories_auto=counts.get("auto", 0),
+                    factories_builds_basic=counts.get("builds_basic", 0),
+                    factories_builds_auto=counts.get("builds_auto", 0),
+                    factories_upgrades=counts.get("upgrades", 0),
+                )
+            )
+
+        return results
 
     def _phase_handler_for(self, phase: GamePhase) -> Callable[[], None]:
         """Return the method that corresponds to the requested phase."""

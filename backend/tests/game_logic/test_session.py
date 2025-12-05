@@ -332,3 +332,45 @@ def test_seniority_history_tracks_rotations() -> None:
     session.run_phase(GamePhase.END_MONTH)
 
     assert session.seniority_history[-1].month == 2
+
+
+def test_final_player_stats_collects_capital_and_factories() -> None:
+    player_one = make_player(player_id=1, money=5_000.0, priority=2)
+    player_two = make_player(player_id=2, money=12_000.0, priority=1)
+
+    add_factories(player_one, ["basic", "auto", "builds_basic"])
+    add_factories(player_two, ["basic", "upgrades"])
+
+    loan = player_one.loans[0]
+    loan.amount = 1_500.0
+    loan.loan_status = "in_progress"
+    loan.return_month = 2
+
+    session = GameSession(
+        players=[player_one, player_two],
+        settings=make_settings(),
+        seed_seniority=False,
+    )
+
+    stats = session.build_final_player_stats()
+    assert [item.player_id for item in stats] == [1, 2]
+
+    p1 = stats[0]
+    p2 = stats[1]
+
+    assert p1.capital == pytest.approx(23_500.0)
+    assert p1.place == 1
+    assert p1.is_top1 is True
+    assert p1.has_debt is True
+    assert p1.total_debt == pytest.approx(1_500.0)
+    assert (p1.factories_basic, p1.factories_auto, p1.factories_builds_basic) == (
+        1,
+        1,
+        1,
+    )
+
+    assert p2.capital == pytest.approx(22_000.0)
+    assert p2.place == 2
+    assert p2.is_top1 is False
+    assert p2.has_debt is False
+    assert (p2.factories_basic, p2.factories_upgrades) == (1, 1)

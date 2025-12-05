@@ -8,6 +8,10 @@ from fabricat_backend.api.models.auth import (
     UserRegisterResponse,
     UserResponse,
 )
+from fabricat_backend.api.models.history import (
+    PlayerGameStats,
+    PlayerGameStatsList,
+)
 
 __all__ = [
     "AuthTokenResponse",
@@ -16,4 +20,6 @@ __all__ = [
     "UserRegisterRequest",
     "UserRegisterResponse",
     "UserResponse",
+    "PlayerGameStats",
+    "PlayerGameStatsList",
 ]

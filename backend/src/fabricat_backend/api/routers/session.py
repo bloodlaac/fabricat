@@ -6,8 +6,9 @@ import asyncio
 import contextlib
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, status
 from pydantic import BaseModel, TypeAdapter, ValidationError
@@ -30,7 +31,12 @@ from fabricat_backend.api.models.session import (
     SubmitBuyBidPayload,
     SubmitSellBidPayload,
 )
-from fabricat_backend.api.services import AuthService  # noqa: TC001
+from fabricat_backend.api.services import (  # noqa: TC001
+    AuthService,
+    GameHistoryRecorder,
+    PlayerHistoryPayload,
+)
+from fabricat_backend.database.service import DatabaseService
 from fabricat_backend.game_logic.phases import (
     DEFAULT_PHASE_DURATION_SECONDS,
     PHASE_SEQUENCE,
@@ -38,7 +44,12 @@ from fabricat_backend.game_logic.phases import (
     PhaseTick,
     PhaseTimer,
 )
-from fabricat_backend.game_logic.session import GameSession, GameSettings, Player
+from fabricat_backend.game_logic.session import (
+    GameSession,
+    GameSettings,
+    Player,
+)
+from fabricat_backend.settings import get_settings
 
 router = APIRouter(tags=["session"])
 
@@ -97,6 +108,7 @@ class SessionContext:
 
 _SESSION_REGISTRY: dict[str, SessionContext] = {}
 _SESSION_LOCK = asyncio.Lock()
+_GAME_HISTORY_RECORDER: GameHistoryRecorder | None = None
 
 
 class SessionJoinError(Exception):
@@ -155,6 +167,65 @@ def _generate_session_code() -> str:
     return uuid4().hex[:8]
 
 
+def _get_game_history_recorder() -> GameHistoryRecorder | None:
+    """Lazily build or return the cached history recorder."""
+    global _GAME_HISTORY_RECORDER
+    if _GAME_HISTORY_RECORDER is not None:
+        return _GAME_HISTORY_RECORDER
+
+    try:
+        settings = get_settings()
+    except Exception:  # pragma: no cover - defensive fallback
+        return None
+
+    try:
+        _GAME_HISTORY_RECORDER = GameHistoryRecorder(
+            database=DatabaseService(settings.database_url),
+        )
+    except Exception:  # pragma: no cover - if dependencies are missing
+        return None
+    return _GAME_HISTORY_RECORDER
+
+
+def _build_player_history_payload(
+    context: SessionContext,
+) -> list[PlayerHistoryPayload]:
+    """Map final session stats onto user assignments."""
+    user_by_player_id = {
+        player.id_: user_identifier
+        for user_identifier, player in context.assignments.items()
+    }
+
+    payloads: list[PlayerHistoryPayload] = []
+    for stats in context.session.build_final_player_stats():
+        user_identifier = user_by_player_id.get(stats.player_id)
+        user_id: UUID | None = None
+        if user_identifier is not None:
+            with contextlib.suppress(ValueError):
+                user_id = UUID(user_identifier)
+
+        payloads.append(PlayerHistoryPayload(user_id=user_id, stats=stats))
+
+    return payloads
+
+
+async def _record_game_history(context: SessionContext) -> None:
+    """Persist the end-of-game snapshot if the recorder is configured."""
+    recorder = _get_game_history_recorder()
+    if recorder is None:
+        return
+
+    try:
+        recorder.record(
+            session_code=context.session_code,
+            finished_at=datetime.now(tz=UTC),
+            stats=_build_player_history_payload(context),
+        )
+    except Exception:
+        # Recording failures should not disrupt the websocket lifecycle.
+        return
+
+
 def _refresh_unstarted_context(context: SessionContext) -> None:
     """Rebuild the runtime when the player roster changes pre-launch."""
     if context.session_started:
@@ -166,11 +237,22 @@ def _refresh_unstarted_context(context: SessionContext) -> None:
         phase_duration=DEFAULT_PHASE_DURATION_SECONDS,
         sender=None,
         session_code=context.session_code,
+        on_finished=None,
     )
     for listener in listeners:
         runtime.add_sender(listener)
     context.session = session
     context.runtime = runtime
+    _attach_history_hook(context)
+
+
+def _attach_history_hook(context: SessionContext) -> None:
+    """Wire the runtime to persist game history once the game ends."""
+
+    async def _on_finished(_session: GameSession) -> None:
+        await _record_game_history(context)
+
+    context.runtime.set_on_finished(_on_finished)
 
 
 def _spawn_player_slot(context: SessionContext) -> Player:
@@ -202,6 +284,7 @@ async def _register_connection(
                 phase_duration=DEFAULT_PHASE_DURATION_SECONDS,
                 sender=None,
                 session_code=session_code,
+                on_finished=None,
             )
             runtime.add_sender(send)
             context = SessionContext(
@@ -215,6 +298,7 @@ async def _register_connection(
                 connections=1,
             )
             _SESSION_REGISTRY[session_code] = context
+            _attach_history_hook(context)
             return context, session_code, controlled_player, True
 
         if context.session.is_finished:
@@ -433,6 +517,7 @@ class SessionRuntime:
         phase_duration: int,
         sender: ActionSender,
         session_code: str,
+        on_finished: Callable[[GameSession], Awaitable[None]] | None = None,
     ) -> None:
         self._session = session
         self._phase_duration = phase_duration
@@ -447,6 +532,7 @@ class SessionRuntime:
         self._stopped = asyncio.Event()
         self._last_tick: PhaseTick | None = None
         self._has_started = False
+        self._on_finished = on_finished
 
     @property
     def current_phase(self) -> GamePhase:
@@ -485,6 +571,12 @@ class SessionRuntime:
         with contextlib.suppress(ValueError):
             self._senders.remove(sender)
 
+    def set_on_finished(
+        self, callback: Callable[[GameSession], Awaitable[None]] | None
+    ) -> None:
+        """Register a callback to run when the session reaches completion."""
+        self._on_finished = callback
+
     async def start(self) -> None:
         """Begin streaming ticks and reports."""
         if self._task is None:
@@ -520,6 +612,9 @@ class SessionRuntime:
 
             if self._session.is_finished:
                 self._stopped.set()
+                if self._on_finished is not None:
+                    with contextlib.suppress(Exception):
+                        await self._on_finished(self._session)
                 break
 
             self._phase_index = (self._phase_index + 1) % len(PHASE_SEQUENCE)

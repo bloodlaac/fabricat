@@ -238,6 +238,7 @@ class PatchedSessionRuntime:
         self._task: asyncio.Task[None] | None = None
         self._stopped = asyncio.Event()
         self._harness = harness
+        self._on_finished = kwargs.get("on_finished")
         self._initialized = True
 
     @property
@@ -271,6 +272,9 @@ class PatchedSessionRuntime:
         with suppress(ValueError):
             self._senders.remove(sender)
             self._refcount = max(self._refcount - 1, 0)
+
+    def set_on_finished(self, callback: Any) -> None:
+        self._on_finished = callback
 
     def fast_forward_phase(self) -> None:
         self._harness.phase_ready[self._current_phase] = True
@@ -325,6 +329,9 @@ class PatchedSessionRuntime:
 
             if self._session.is_finished:
                 self._stopped.set()
+                if self._on_finished is not None:
+                    with suppress(Exception):
+                        await self._on_finished(self._session)
                 break
 
             next_index = (PHASE_SEQUENCE.index(phase) + 1) % len(PHASE_SEQUENCE)
