@@ -241,6 +241,22 @@ html, body {
   background: #bfa0a0;
 }
 
+.construction-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
 .error-banner {
   background: #ffe0e0;
   border: 1px solid #ff8ba7;
@@ -250,11 +266,18 @@ html, body {
 }
 
 .leave-btn {
-  margin-top: auto;
   padding: 12px;
   border-radius: 12px;
   border: none;
   background: #ffffff;
   cursor: pointer;
   font-weight: 700;
+}
+
+.footer-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
 }

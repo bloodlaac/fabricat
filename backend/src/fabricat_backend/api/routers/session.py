@@ -155,11 +155,10 @@ def _default_game_settings() -> GameSettings:
 
 
 def _bootstrap_players(user_identifier: str) -> tuple[list[Player], Player]:
-    """Create a minimal roster with the user and a placeholder rival."""
+    """Create a roster with only the current user."""
     base_id = abs(hash(user_identifier)) % 9_000 + 1
     user_player = Player(id_=base_id, money=10_000.0, priority=1)
-    rival = Player(id_=base_id + 1, money=10_000.0, priority=2)
-    return [user_player, rival], user_player
+    return [user_player], user_player
 
 
 def _generate_session_code() -> str:
@@ -230,6 +229,28 @@ def _refresh_unstarted_context(context: SessionContext) -> None:
     """Rebuild the runtime when the player roster changes pre-launch."""
     if context.session_started:
         return
+
+    # Rebuild player objects to avoid duplicating starting factories
+    assignment_ids = {uid: player.id_ for uid, player in context.assignments.items()}
+    fresh_players: list[Player] = []
+    for index, existing in enumerate(context.players):
+        fresh_players.append(
+            Player(
+                id_=existing.id_,
+                money=10_000.0,
+                priority=index + 1,
+            )
+        )
+    context.players = fresh_players
+
+    new_assignments: dict[str, Player] = {}
+    for user_identifier, player_id in assignment_ids.items():
+        for player in fresh_players:
+            if player.id_ == player_id:
+                new_assignments[user_identifier] = player
+                break
+    context.assignments = new_assignments
+
     listeners = list(context.listeners)
     session = GameSession(players=context.players, settings=_default_game_settings())
     runtime = SessionRuntime(
@@ -338,6 +359,17 @@ async def _register_connection(
         context.user_connections[user_identifier] = (
             context.user_connections.get(user_identifier, 0) + 1
         )
+        if not context.session_started:
+            asyncio.create_task(
+                context.runtime.broadcast(
+                    PhaseStatusResponse(
+                        month=context.session.month,
+                        phase=context.runtime.current_phase,
+                        analytics=context.session.snapshot_analytics(),
+                        remaining_seconds=context.runtime.remaining_seconds,
+                    )
+                )
+            )
         return context, session_code, controlled_player, False
 
 
@@ -381,6 +413,12 @@ def _cancel_auto_start(context: SessionContext) -> None:
 def _ensure_auto_start(context: SessionContext) -> None:
     """Schedule the auto-start timer if it is not running."""
     if context.session_started or context.auto_start_task is not None:
+        return
+    if (
+        MIN_PLAYERS_TO_AUTO_START > 1
+        and context.active_player_count() < MIN_PLAYERS_TO_AUTO_START
+    ):
+        context.auto_start_task = None
         return
     context.auto_start_task = asyncio.create_task(_auto_start_lobby(context))
 

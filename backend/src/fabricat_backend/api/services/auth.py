@@ -77,6 +77,20 @@ class AuthService:
             sub=data["sub"], exp=datetime.fromtimestamp(data["exp"], tz=UTC)
         )
 
+    def refresh_access_token(self, token: str) -> str:
+        """Issue a new access token based on an existing token (ignores expiry)."""
+        data = jwt.decode(
+            token,
+            self._secret_key,
+            algorithms=[self._algorithm],
+            options={"verify_exp": False},
+        )
+        subject = data.get("sub")
+        if not subject:
+            msg = "Token subject missing"
+            raise InvalidCredentialsError(msg)
+        return self.create_access_token(subject)
+
     def register_user(
         self,
         *,

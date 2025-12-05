@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./GamePage.css";
-import { buildWsUrl } from "../../api/client";
-import { loadAuth } from "../../state/auth";
+import { buildWsUrl, refreshToken } from "../../api/client";
+import { loadAuth, saveAuth } from "../../state/auth";
 
 const ACTIONS_BY_PHASE = {
   buy: ["submit_buy_bid", "skip"],
@@ -10,6 +10,17 @@ const ACTIONS_BY_PHASE = {
   sell: ["submit_sell_bid", "skip"],
   loans: ["loan_decision", "skip"],
   construction: ["construction_request", "skip"],
+};
+
+const PHASE_LABELS = {
+  expenses: "Расходы",
+  market: "Рынок",
+  buy: "Покупка",
+  production: "Производство",
+  sell: "Продажа",
+  loans: "Кредиты",
+  construction: "Стройка",
+  end_month: "Завершение месяца",
 };
 
 const initialActionState = {
@@ -28,7 +39,7 @@ export default function GamePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const requestedSessionCode = location.state?.sessionCode ?? null;
-  const [auth] = useState(() => loadAuth());
+  const [auth, setAuth] = useState(() => loadAuth());
   const token = auth?.token?.access_token;
   const user = auth?.user;
 
@@ -41,8 +52,10 @@ export default function GamePage() {
   const [lastReport, setLastReport] = useState(null);
   const [lastError, setLastError] = useState("");
   const [actionState, setActionState] = useState(initialActionState);
+  const [playerCount, setPlayerCount] = useState(1);
 
   const socketRef = useRef(null);
+  const isRefreshingRef = useRef(false);
 
   useEffect(() => {
     if (!token) {
@@ -62,7 +75,11 @@ export default function GamePage() {
       ws.send(JSON.stringify(joinPayload));
     };
 
-    ws.onclose = () => {
+    ws.onclose = async (event) => {
+      if (event.code === 1008 || event.code === 403 || event.code === 4401) {
+        await attemptRefresh();
+        return;
+      }
       setConnectionStatus("closed");
     };
 
@@ -84,10 +101,40 @@ export default function GamePage() {
     };
   }, [navigate, requestedSessionCode, token]);
 
+  const attemptRefresh = async () => {
+    if (isRefreshingRef.current || !token) return;
+    isRefreshingRef.current = true;
+    try {
+      const newToken = await refreshToken({ token });
+      const updatedAuth = { ...auth, token: newToken };
+      saveAuth(updatedAuth);
+      setAuth(updatedAuth);
+    } catch (err) {
+      navigate("/");
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  };
+
   const allowedActions = useMemo(
     () => ACTIONS_BY_PHASE[phase] || [],
     [phase],
   );
+
+  const derivedStatus =
+    connectionStatus === "ready" && playerCount < 2
+      ? "waiting"
+      : connectionStatus;
+
+  const statusLabel = {
+    connecting: "Подключаемся",
+    connected: "Готово к входу",
+    ready: "Готов",
+    running: "Идет игра",
+    waiting: "Ждем игроков",
+    closed: "Закрыто",
+    error: "Ошибка",
+  }[derivedStatus] || derivedStatus;
 
   const handleMessage = (data) => {
     switch (data.type) {
@@ -96,6 +143,7 @@ export default function GamePage() {
         setPhase(data.phase);
         setMonth(data.month);
         setAnalytics(data.analytics);
+        setPlayerCount(data.analytics?.players?.length || 1);
         setConnectionStatus("ready");
         setLastError("");
         break;
@@ -115,7 +163,12 @@ export default function GamePage() {
         setMonth(data.month);
         setAnalytics(data.analytics);
         setTick((prev) => ({ ...prev, remaining_seconds: data.remaining_seconds }));
-        setConnectionStatus("running");
+        setPlayerCount(data.analytics?.players?.length || playerCount);
+        setConnectionStatus(
+          data.remaining_seconds === undefined || data.remaining_seconds === null
+            ? "ready"
+            : "running",
+        );
         break;
       case "action_ack":
         setLastError("");
@@ -125,6 +178,9 @@ export default function GamePage() {
         break;
       case "error":
         setLastError(data.message || "Ошибка");
+        if (data.message === "Invalid token") {
+          attemptRefresh();
+        }
         break;
       default:
         break;
@@ -135,6 +191,7 @@ export default function GamePage() {
     const ws = socketRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) {
       setLastError("Соединение с сервером не готово");
+      attemptRefresh();
       return;
     }
     ws.send(JSON.stringify(payload));
@@ -229,14 +286,14 @@ export default function GamePage() {
           <div className="session-info">
             <div className="session-code">Код: {sessionCode || "—"}</div>
             <div className="session-status">
-              Статус: {connectionStatus}
+              Статус: {statusLabel}
             </div>
           </div>
         </div>
 
         <div className="phase-block">
           <div>Месяц: {month ?? "—"}</div>
-          <div>Фаза: {phase || "—"}</div>
+          <div>Фаза: {PHASE_LABELS[phase] || phase || "—"}</div>
           <div>Осталось: {tick?.remaining_seconds ?? "—"} сек</div>
         </div>
 
@@ -264,34 +321,9 @@ export default function GamePage() {
           </div>
         )}
 
-        {lastReport && (
-          <div className="report-block">
-            <div className="analytics-title">Отчет</div>
-            <div className="report-content">
-              {lastReport.journal?.slice(-4).map((entry) => (
-                <div key={entry.message + entry.phase + entry.month} className="report-row">
-                  <span className="report-phase">{entry.phase}</span>
-                  <span>{entry.message}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="controls">
-          <button
-            className="control-btn"
-            onClick={startSession}
-            disabled={connectionStatus !== "ready"}
-            style={{ visibility: connectionStatus === "ready" ? "visible" : "hidden" }}
-          >
-            Старт
-          </button>
-        </div>
-
         <div className="action-forms">
           <div className="action-card">
-            <div className="action-title">Покупка (BUY)</div>
+            <div className="action-title">Покупка</div>
             <div className="action-row">
               <label>Кол-во</label>
               <input
@@ -312,7 +344,7 @@ export default function GamePage() {
           </div>
 
           <div className="action-card">
-            <div className="action-title">Производство (PRODUCTION)</div>
+            <div className="action-title">Производство</div>
             <div className="action-row">
               <label>Базовые</label>
               <input
@@ -333,7 +365,7 @@ export default function GamePage() {
           </div>
 
           <div className="action-card">
-            <div className="action-title">Продажа (SELL)</div>
+            <div className="action-title">Продажа</div>
             <div className="action-row">
               <label>Кол-во</label>
               <input
@@ -354,7 +386,7 @@ export default function GamePage() {
           </div>
 
           <div className="action-card">
-            <div className="action-title">Кредиты (LOANS)</div>
+            <div className="action-title">Кредиты</div>
             <div className="loan-buttons">
               {analytics?.bank_loan_nominals?.map((amount, idx) => (
                 <button
@@ -393,18 +425,29 @@ export default function GamePage() {
           </div>
 
           <div className="action-card">
-            <div className="action-title">Стройка (CONSTRUCTION)</div>
-            <div className="action-row">
-              <select
-                value={actionState.construction}
-                onChange={(e) => setActionState({ ...actionState, construction: e.target.value })}
-              >
-                <option value="idle">Ничего</option>
-                <option value="build_basic">Строить базовые</option>
-                <option value="build_auto">Строить автоматические</option>
-                <option value="upgrade">Улучшить</option>
-              </select>
+            <div className="action-title">Стройка</div>
+            <div className="construction-row">
+              {[
+                { value: "build_basic", label: "Строить базовые" },
+                { value: "build_auto", label: "Строить автоматические" },
+                { value: "upgrade", label: "Улучшить" },
+              ].map((opt) => (
+                <label key={opt.value} className="radio-option">
+                  <input
+                    type="radio"
+                    name="construction"
+                    value={opt.value}
+                    checked={actionState.construction === opt.value}
+                    onChange={(e) =>
+                      setActionState({ ...actionState, construction: e.target.value })
+                    }
+                    disabled={!allowedActions.includes("construction_request")}
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
               <button
+                className="loan-btn"
                 onClick={sendConstructionRequest}
                 disabled={!allowedActions.includes("construction_request")}
               >
@@ -416,7 +459,20 @@ export default function GamePage() {
 
         {lastError && <div className="error-banner">{lastError}</div>}
 
-        <button className="leave-btn" onClick={handleLeave}>Покинуть игру</button>
+        <div className="footer-controls">
+          <button
+            className="control-btn"
+            onClick={startSession}
+            disabled={connectionStatus !== "ready" || playerCount < 2}
+            style={{
+              visibility:
+                connectionStatus === "ready" && playerCount >= 2 ? "visible" : "hidden",
+            }}
+          >
+            Старт
+          </button>
+          <button className="leave-btn" onClick={handleLeave}>Покинуть игру</button>
+        </div>
       </div>
     </div>
   );

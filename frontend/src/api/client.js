@@ -52,6 +52,13 @@ export async function loginUser({ nickname, password }) {
   });
 }
 
+export async function refreshToken({ token }) {
+  return request("/auth/refresh", {
+    method: "POST",
+    token,
+  });
+}
+
 export async function fetchRecentGames({ token, limit = 10 }) {
   return request(`/history/games/me?limit=${limit}`, {
     method: "GET",
