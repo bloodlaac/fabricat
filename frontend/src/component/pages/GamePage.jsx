@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./GamePage.css";
 import { buildWsUrl, refreshToken } from "../../api/client";
 import { loadAuth, saveAuth } from "../../state/auth";
+import ChessBoard from "../game/ChessBoard";
 
 const ACTIONS_BY_PHASE = {
   buy: ["submit_buy_bid", "skip"],
@@ -320,11 +321,7 @@ export default function GamePage() {
   return (
     <div className="game-page">
       <div className="div1">
-        <div className="grid-container">
-          {Array.from({ length: 90 }).map((_, index) => (
-            <div key={index} className="grid-cell"></div>
-          ))}
-        </div>
+        <ChessBoard />
       </div>
 
       <div className="div2">

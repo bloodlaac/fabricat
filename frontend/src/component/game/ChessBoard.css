@@ -1,0 +1,133 @@
+.chess-shell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.45), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.4), transparent 26%),
+    #fdf5e6;
+}
+
+.chess-top {
+  text-align: center;
+  color: #7d2e2e;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chess-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.chess-status {
+  font-weight: 600;
+}
+
+.chess-last-move {
+  font-size: 12px;
+  color: #a35d5d;
+}
+
+.chess-board {
+  width: min(640px, 86vw);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+}
+
+.chess-cell {
+  position: relative;
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(22px, 4vw, 40px);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.12s ease;
+  padding: 0;
+}
+
+.chess-cell.light {
+  background: #fff5ec;
+}
+
+.chess-cell.dark {
+  background: #e6c4b9;
+}
+
+.chess-cell.selected {
+  box-shadow: inset 0 0 0 3px #ff8ba7;
+}
+
+.chess-cell.legal:not(.capture) {
+  box-shadow: inset 0 0 0 2px rgba(255, 139, 167, 0.8);
+}
+
+.chess-cell.last-move {
+  box-shadow: inset 0 0 0 3px rgba(125, 46, 46, 0.6);
+}
+
+.chess-cell.capture {
+  background: linear-gradient(135deg, rgba(255, 139, 167, 0.3), rgba(255, 255, 255, 0.1));
+}
+
+.chess-cell:hover {
+  transform: translateY(-1px);
+}
+
+.piece {
+  pointer-events: none;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.piece.white {
+  color: #7d2e2e;
+}
+
+.piece.black {
+  color: #2f2b38;
+}
+
+.move-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(125, 46, 46, 0.8);
+  box-shadow: 0 0 0 6px rgba(125, 46, 46, 0.15);
+}
+
+.chess-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.chess-controls button {
+  border: none;
+  background: #ff8ba7;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(255, 139, 167, 0.3);
+}
+
+.chess-tip {
+  color: #7d2e2e;
+  font-size: 13px;
+}
