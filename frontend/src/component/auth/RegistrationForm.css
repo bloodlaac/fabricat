@@ -68,6 +68,27 @@
   color: #7d2e2e;
 }
 
+.reg-select-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reg-select {
+  flex: 1;
+  padding: 14px 12px;
+  border-radius: 12px;
+  border: 1px solid #f3b4b4;
+  background: #fff;
+  font-size: 16px;
+  color: #7d2e2e;
+}
+
+.reg-label {
+  min-width: 80px;
+  font-weight: 600;
+}
+
 /* Кнопки */
 .reg-buttons {
   display: flex;

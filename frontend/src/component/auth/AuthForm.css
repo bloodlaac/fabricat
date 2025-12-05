@@ -53,3 +53,23 @@
 
   font-size: clamp(16px, 1.8vw, 24px);
 }
+
+.auth-error {
+  color: #b3261e;
+  background: #ffe0e0;
+  border: 1px solid #f5a4a4;
+  padding: 10px 14px;
+  border-radius: 10px;
+  width: clamp(260px, 50vw, 480px);
+  text-align: center;
+}
+
+.auth-success {
+  color: #0f5132;
+  background: #d1e7dd;
+  border: 1px solid #badbcc;
+  padding: 10px 14px;
+  border-radius: 10px;
+  width: clamp(260px, 50vw, 480px);
+  text-align: center;
+}

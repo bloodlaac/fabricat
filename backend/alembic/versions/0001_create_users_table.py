@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0001_create_users_table"
@@ -11,24 +11,7 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-AVATAR_ICON = sa.Enum(
-    "astronaut",
-    "botanist",
-    "captain",
-    "diver",
-    "engineer",
-    "geologist",
-    "hacker",
-    "inventor",
-    "pilot",
-    "scientist",
-    name="avatar_icon",
-)
-
-
 def upgrade() -> None:
-    AVATAR_ICON.create(op.get_bind(), checkfirst=True)
-
     op.create_table(
         "users",
         sa.Column(
@@ -38,7 +21,7 @@ def upgrade() -> None:
         sa.Column("password_hash", sa.String(length=255), nullable=False),
         sa.Column(
             "icon",
-            AVATAR_ICON,
+            sa.String(length=32),
             nullable=False,
         ),
         sa.Column(
@@ -62,4 +45,3 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_index("ix_users_nickname", table_name="users")
     op.drop_table("users")
-    AVATAR_ICON.drop(op.get_bind(), checkfirst=True)

@@ -71,3 +71,20 @@
 .card-btn:hover {
   filter: brightness(1.1);
 }
+
+.card-hint {
+  background: #fff6f6;
+  border-radius: 12px;
+  padding: 12px;
+  color: #7d2e2e;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.card-error {
+  color: #b3261e;
+  background: #ffe0e0;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+}

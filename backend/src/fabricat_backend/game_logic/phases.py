@@ -77,6 +77,13 @@ class PhaseAnalytics(BaseModel):
 
     players: list[PlayerPhaseAnalytics]
     bankrupt_players: list[int] = Field(default_factory=list)
+    bank_raw_material_volume: int
+    bank_raw_material_min_price: float
+    bank_finished_good_volume: int
+    bank_finished_good_max_price: float
+    bank_available_loans: list[float] = Field(default_factory=list)
+    bank_loan_nominals: list[float] = Field(default_factory=list)
+    bank_loan_terms: list[int] = Field(default_factory=list)
 
 
 class PhaseReport(BaseModel):

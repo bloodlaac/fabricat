@@ -95,7 +95,7 @@ class AuthService:
             id=uuid4(),
             nickname=nickname,
             password_hash=password_hash,
-            icon=icon,
+            icon=icon.value if hasattr(icon, "value") else str(icon),
         )
         user = repository.add(user)
         token = self.create_access_token(str(user.id))

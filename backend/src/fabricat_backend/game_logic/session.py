@@ -718,7 +718,17 @@ class GameSession:
             for player in self._players
         ]
         bankrupt_ids = [player.player_id for player in players if player.bankrupt]
-        return PhaseAnalytics(players=players, bankrupt_players=bankrupt_ids)
+        return PhaseAnalytics(
+            players=players,
+            bankrupt_players=bankrupt_ids,
+            bank_raw_material_volume=self._bank.raw_material_sell_volume,
+            bank_raw_material_min_price=self._bank.raw_material_sell_min_price,
+            bank_finished_good_volume=self._bank.finished_good_buy_volume,
+            bank_finished_good_max_price=self._bank.finished_good_buy_max_price,
+            bank_available_loans=list(self._bank.available_loans),
+            bank_loan_nominals=list(self._bank.loan_nominals),
+            bank_loan_terms=list(self._bank.loan_terms_in_months),
+        )
 
     def snapshot_analytics(self) -> PhaseAnalytics:
         """Return the latest analytics snapshot without running a phase."""

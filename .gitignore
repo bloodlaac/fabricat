@@ -10,3 +10,8 @@
 .env.test.local
 .env.production.local
 !.env.example
+
+# MD
+!README.md
+!README.RU.md
+**.md

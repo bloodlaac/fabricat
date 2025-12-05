@@ -1,69 +1,76 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./AccountPage.css"; 
+import "./AccountPage.css";
 import CreateGameCard from "../ui/CreateGameCard";
 import JoinGameCard from "../ui/JoinGameCard";
-import StatsCard from "../ui/StatsCard"; // импортируем карточку статистики
+import StatsCard from "../ui/StatsCard";
 import Rules from "../auth/Rules";
+import { clearAuth, loadAuth } from "../../state/auth";
+
 export default function AccountPage() {
   const navigate = useNavigate();
-  const [activeCard, setActiveCard] = useState(null); // null | "create" | "join" | "stats"
+  const [activeCard, setActiveCard] = useState(null);
   const [showRules, setShowRules] = useState(false);
-  const handleShowRules = () => {
-    setShowRules(true);
-  };
-  const handleCloseRules = () => {
-    setShowRules(false);
-  };
+  const [auth, setAuth] = useState(() => loadAuth());
+
+  useEffect(() => {
+    if (!auth) {
+      navigate("/");
+    }
+  }, [auth, navigate]);
+
+  const user = auth?.user;
+
+  const userInitial = useMemo(() => (user?.nickname ? user.nickname[0]?.toUpperCase() : "–"), [user]);
 
   const handleLogout = () => {
-    navigate("/"); // возврат на страницу авторизации
+    clearAuth();
+    setAuth(null);
+    navigate("/");
   };
 
-  const handleRules = () => {
-    alert("Справка — тут пока заглушка");
+  const handleStartGame = (sessionCode) => {
+    setActiveCard(null);
+    navigate("/game", { state: { sessionCode: sessionCode || null } });
   };
 
   return (
     <div className="account-page">
-      {/* Верхний бар */}
       <div className="account-header">
         <button className="logout-btn" onClick={handleLogout}>Выйти</button>
 
-        <div 
-          className="user-info" 
-          onClick={() => setActiveCard("stats")} // открытие StatsCard
+        <div
+          className="user-info"
+          onClick={() => setActiveCard("stats")}
           style={{ cursor: "pointer" }}
         >
-          <span className="user-nick">Никнейм</span>
-          <div className="user-avatar">А</div>
+          <span className="user-nick">{user?.nickname || "—"}</span>
+          <div className="user-avatar">{userInitial}</div>
         </div>
       </div>
 
-      {/* Центральная часть с кнопками */}
       <div className="account-center">
         <button className="account-btn" onClick={() => setActiveCard("create")}>
           Создать
         </button>
         <button className="account-btn" onClick={() => setActiveCard("join")}>
-          Присоеденится
+          Присоединиться
         </button>
       </div>
 
-      {/* Кнопка правил */}
-      <div className="rules-link" onClick={handleShowRules}>
+      <div className="rules-link" onClick={() => setShowRules(true)}>
         Справка
       </div>
-      {showRules && <Rules onClose={handleCloseRules} />}
-      {/* Отображение карточек поверх страницы */}
+      {showRules && <Rules onClose={() => setShowRules(false)} />}
+
       {activeCard === "create" && (
-        <CreateGameCard onClose={() => setActiveCard(null)} />
+        <CreateGameCard onClose={() => setActiveCard(null)} onStartGame={handleStartGame} />
       )}
       {activeCard === "join" && (
-        <JoinGameCard onClose={() => setActiveCard(null)} />
+        <JoinGameCard onClose={() => setActiveCard(null)} onStartGame={handleStartGame} />
       )}
       {activeCard === "stats" && (
-        <StatsCard onClose={() => setActiveCard(null)} />
+        <StatsCard onClose={() => setActiveCard(null)} token={auth?.token?.access_token} />
       )}
     </div>
   );

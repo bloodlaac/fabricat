@@ -2,19 +2,21 @@ import React, { useState } from "react";
 import "./Card.css";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
-import WaitingRoom from "../lobby/WaitingRoom"; // путь к комнате ожидания
 
-export default function JoinGameCard({ onClose }) {
-  const [waiting, setWaiting] = useState(false);
+export default function JoinGameCard({ onClose, onStartGame }) {
+  const [sessionCode, setSessionCode] = useState("");
+  const [error, setError] = useState("");
 
   const handleJoin = () => {
-    setWaiting(true); // переключаемся на комнату ожидания
+    if (!sessionCode.trim()) {
+      setError("Введите код сессии");
+      return;
+    }
+    setError("");
+    if (typeof onStartGame === "function") {
+      onStartGame(sessionCode.trim());
+    }
   };
-
-  // Если пользователь присоединился → показываем комнату ожидания
-  if (waiting) {
-    return <WaitingRoom onClose={onClose} />;
-  }
 
   return (
     <div className="card-overlay">
@@ -22,8 +24,14 @@ export default function JoinGameCard({ onClose }) {
         <button className="card-close" onClick={onClose}>✖</button>
         <h3 className="card-title">Вход в игру</h3>
         <div className="card-fields">
-          <Input placeholder="Ключ лобби" className="pink-input" />
+          <Input
+            placeholder="Код лобби"
+            className="pink-input"
+            value={sessionCode}
+            onChange={(e) => setSessionCode(e.target.value)}
+          />
         </div>
+        {error && <div className="card-error">{error}</div>}
         <Button className="card-btn" onClick={handleJoin}>
           Присоединиться
         </Button>
