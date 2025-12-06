@@ -26,7 +26,6 @@ class GameSettings(BaseModel):
     simulation can play out deterministically for every participant.
     """
 
-    # Settings currently mirror README defaults until BackendSettings grows presets.
     rng_seed: int = 42
 
     start_factory_count: int
@@ -373,7 +372,7 @@ class GameSession:
         self._total_players = len(players)
         self._is_finished = False
         self._winner_id: int | None = None
-        self._rng = rng or Random(settings.rng_seed)  # noqa: S311
+        self._rng = rng or Random(settings.rng_seed)
         self._journal: list[PhaseJournalEntry] = []
         self._phase_reports: list[PhaseReport] = []
         self._phase_event_buffer: list[PhaseJournalEntry] = []
@@ -508,7 +507,7 @@ class GameSession:
             msg = "Loan amounts and term configuration mismatch."
             raise ValueError(msg)
         self._bank = Bank(
-            rng=Random(settings.rng_seed + 1),  # noqa: S311
+            rng=Random(settings.rng_seed + 1),
             money=settings.bank_start_money,
             available_loans=list(settings.available_loans),
             loan_nominals=list(settings.available_loans),
@@ -680,7 +679,7 @@ class GameSession:
         }
         try:
             return handlers[phase]
-        except KeyError as exc:  # pragma: no cover - guarded by enum usage
+        except KeyError as exc:
             msg = f"Unsupported phase: {phase}"
             raise ValueError(msg) from exc
 
@@ -808,7 +807,6 @@ class GameSession:
         if bid is None:
             return float("inf"), player.priority
 
-        # Higher bid price should go first, then the smallest priority value.
         return -bid.price, player.priority
 
     @staticmethod
@@ -924,7 +922,7 @@ class GameSession:
                 )
 
     @staticmethod
-    def _resolve_production_runs(  # noqa: PLR0913
+    def _resolve_production_runs(
         *,
         requested_units: int,
         factory_count: int,
@@ -1111,7 +1109,7 @@ class GameSession:
                     },
                 )
 
-    def process_loans(self) -> None:  # noqa: C901, PLR0912
+    def process_loans(self) -> None:
         """Update loan balances, collect repayments, and fund new calls.
 
         Players are examined from highest to lowest priority. Interest is
@@ -1228,7 +1226,7 @@ class GameSession:
 
         self._evaluate_game_completion()
 
-    def build_or_upgrade(self) -> None:  # noqa: C901, PLR0912, PLR0915
+    def build_or_upgrade(self) -> None:
         """Advance construction projects and kick off requested builds.
 
         Existing projects are checked for completion, adjusting factory states

@@ -17,12 +17,10 @@ if TYPE_CHECKING:
 class FakeUserRepository:
     """In-memory repository used to mock database operations."""
 
-    def __init__(
-        self, session: Any
-    ) -> None:  # pragma: no cover - session unused in fake repo
+    def __init__(self, session: Any) -> None:
         self._session = session
 
-    _store: dict[UUID, UserSchema] = {}  # noqa: RUF012
+    _store: dict[UUID, UserSchema] = {}
 
     @classmethod
     def reset(cls) -> None:
@@ -83,7 +81,7 @@ def test_register_user_success(client: TestClient) -> None:
 
     assert response.status_code == 201
     data = response.json()
-    assert data["token"]["token_type"] == "bearer"  # noqa: S105
+    assert data["token"]["token_type"] == "bearer"
     assert data["user"]["nickname"] == payload["nickname"]
     assert "access_token" in data["token"]
 
@@ -117,7 +115,7 @@ def test_login_user_success(client: TestClient) -> None:
 
     assert response.status_code == 200
     data = response.json()
-    assert data["token"]["token_type"] == "bearer"  # noqa: S105
+    assert data["token"]["token_type"] == "bearer"
     assert data["user"]["nickname"] == register_payload["nickname"]
 
 

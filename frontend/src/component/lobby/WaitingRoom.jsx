@@ -6,7 +6,6 @@ export default function WaitingRoom({ onClose, onSettings }) {
   return (
     <div className="wr-page">
       <div className="wr-header">
-        {/* Используем onClose вместо onBack */}
         <button className="wr-icon" onClick={onClose}>←</button>
 
         <div className="wr-title">Ожидание игроков</div>

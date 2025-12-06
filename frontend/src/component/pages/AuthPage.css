@@ -7,12 +7,12 @@
 }
 
 .auth-container {
-  /* теперь контейнер = весь экран */
+  
   width: 100vw;
   height: 100vh;
 
   background: #faeedc;
-  border-radius: 0; /* убираем скругления, чтобы совпадало с экраном */
+  border-radius: 0; 
 
   position: relative;
 
@@ -24,7 +24,7 @@
   box-sizing: border-box;
 }
 
-/* кнопка закрытия */
+
 .auth-close {
   position: absolute;
   top: 20px;
@@ -53,7 +53,7 @@
   width: fit-content;
 }
 
-/* кнопка Справка */
+
 .rules-link {
   position: absolute;
   left: 30px;

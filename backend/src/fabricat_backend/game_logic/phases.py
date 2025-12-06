@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
-else:  # pragma: no cover - runtime fallback
+else:
     AsyncIterator = Any
 
 from pydantic import BaseModel, Field

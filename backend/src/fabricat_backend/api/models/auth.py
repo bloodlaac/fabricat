@@ -28,7 +28,7 @@ class AuthTokenResponse(BaseModel):
     """Bearer token payload returned by the API."""
 
     access_token: str
-    token_type: str = "bearer"  # noqa: S105
+    token_type: str = "bearer"
 
 
 class UserRegisterRequest(BaseModel):

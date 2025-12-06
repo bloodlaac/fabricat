@@ -1,13 +1,10 @@
 import os
 
-# Путь к проекту
 project_path = r"C:\my_dump\study\management\management_site"
 output_file = os.path.join(project_path, "project_code.txt")
 
-# Папки для экспорта
 folders = ["src", "public"]
 
-# Создаём или перезаписываем файл
 with open(output_file, "w", encoding="utf-8") as out:
     for folder in folders:
         folder_path = os.path.join(project_path, folder)
@@ -15,16 +12,15 @@ with open(output_file, "w", encoding="utf-8") as out:
             for root, _, filenames in os.walk(folder_path):
                 for fname in filenames:
                     file_path = os.path.join(root, fname)
-                    print(f"Обрабатываем: {file_path}")  # Для контроля
+                    print(f"Обрабатываем: {file_path}")
                     out.write(f"\n===== {file_path} =====\n")
                     try:
-                        # Читаем весь файл целиком
                         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                             content = f.read()
                             out.write(content)
                     except Exception as e:
                         out.write(f"[Ошибка чтения файла: {e}]\n")
-                    out.write("\n")  # Отделяем файлы пустой строкой
+                    out.write("\n")
         else:
             print(f"Папка не найдена: {folder_path}")
 

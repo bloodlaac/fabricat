@@ -6,8 +6,8 @@
   height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* теперь прижато к верхней части */
-  padding-top: 5vh; /* отступ сверху, регулируй по вкусу */
+  align-items: flex-start; 
+  padding-top: 5vh; 
   background: rgba(250, 238, 220, 0.5);
   z-index: 1000;
 }
@@ -28,7 +28,7 @@
 }
 
 
-/* Верхний блок */
+
 .reg-header {
   display: flex;
   justify-content: space-between;
@@ -37,7 +37,7 @@
 }
 
 .avatar-select {
-  font-size: 60px; /* увеличили аватар */
+  font-size: 60px; 
   background: #f3b4b4;
   width: 100px;
   height: 100px;
@@ -52,18 +52,18 @@
   font-weight: 600;
 }
 
-/* Поля ввода */
+
 .reg-fields {
   display: flex;
   flex-direction: column;
-  gap: 30px; /* увеличено расстояние между полями */
+  gap: 30px; 
 }
 
 .reg-input {
   padding: 18px 20px;
   border-radius: 16px;
   border: none;
-  background: #f3b4b4; /* розовый градиент */
+  background: #f3b4b4; 
   font-size: 22px;
   color: #7d2e2e;
 }
@@ -89,12 +89,12 @@
   font-weight: 600;
 }
 
-/* Кнопки */
+
 .reg-buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 40px; /* увеличено расстояние до кнопок */
+  margin-top: 40px; 
 }
 
 .reg-back {

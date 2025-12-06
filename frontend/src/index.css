@@ -9,7 +9,7 @@
   --container-width: 1100px;
 }
 
-/* Reset + глобальные */
+
 *{box-sizing:border-box}
 html,body,#root{height:100%}
 body{

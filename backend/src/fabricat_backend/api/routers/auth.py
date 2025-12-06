@@ -86,7 +86,7 @@ def refresh_token(
         )
     try:
         token = auth_service.refresh_access_token(credentials.credentials)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         ) from exc

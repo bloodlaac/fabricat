@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 class FakeUserRepository:
     """In-memory repository used to mock database operations."""
 
-    def __init__(self, session: Any) -> None:  # pragma: no cover - session unused
+    def __init__(self, session: Any) -> None:
         self._session = session
 
     _store: ClassVar[dict[UUID, UserSchema]] = {}
@@ -225,7 +225,6 @@ class PatchedSessionRuntime:
         harness = self._require_harness()
         self._session = kwargs["session"]
         self._session_code = kwargs["session_code"]
-        # Ignore the real phase duration to keep the test tight
         self._phase_duration = 0
         sender = kwargs["sender"]
         self._current_phase = PHASE_SEQUENCE[0]
@@ -617,7 +616,7 @@ def _register_player(client: TestClient, nickname: str) -> str:
     return data["token"]["access_token"]
 
 
-def test_skip_action_does_not_fast_forward_phase(  # noqa: C901, PLR0915
+def test_skip_action_does_not_fast_forward_phase(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Ensure one player's skip does not advance the shared phase."""
@@ -653,7 +652,6 @@ def test_skip_action_does_not_fast_forward_phase(  # noqa: C901, PLR0915
             player_sockets = {"Alpha": ws_alpha, "Beta": ws_beta}
             pending_messages = {alias: deque() for alias in player_sockets}
 
-            # Beta might receive the broadcasted start ack before we begin ticking.
             initial_beta = ws_beta.receive_json()
             if initial_beta["type"] != "session_control_ack":
                 pending_messages["Beta"].append(initial_beta)
@@ -731,7 +729,7 @@ def test_skip_action_does_not_fast_forward_phase(  # noqa: C901, PLR0915
             _wait_for_type("Beta", "phase_report")
 
 
-def test_two_player_websocket_session(  # noqa: PLR0915
+def test_two_player_websocket_session(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Drive a full two-month session with two players over WebSockets."""

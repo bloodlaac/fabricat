@@ -9,7 +9,7 @@
   padding: 0;
 }
 
-/* Верхний бар */
+
 .account-header {
   width: 100%;
   display: flex;
@@ -21,10 +21,10 @@
 
 .logout-btn {
   background: #ffffffd0;
-  border: none; /* убрали обводку */
+  border: none; 
   padding: 12px 24px;
   border-radius: 12px;
-  font-size: 20px; /* уменьшили */
+  font-size: 20px; 
   cursor: pointer;
 }
 
@@ -35,12 +35,12 @@
 }
 
 .user-nick {
-  font-size: 20px; /* уменьшили */
+  font-size: 20px; 
   font-weight: 600;
 }
 
 .user-avatar {
-  width: 60px; /* уменьшили */
+  width: 60px; 
   height: 60px;
   border-radius: 50%;
   background: #f3b4b4;
@@ -48,10 +48,10 @@
   justify-content: center;
   align-items: center;
   font-size: 28px;
-  border: none; /* убрали черную обводку */
+  border: none; 
 }
 
-/* Центральная часть с кнопками */
+
 .account-center {
   display: flex;
   flex-direction: column;
@@ -64,8 +64,8 @@
 }
 
 .account-btn {
-  width: 280px;        /* фиксированная ширина */
-  height: 70px;        /* фиксированная высота */
+  width: 280px;        
+  height: 70px;        
   border-radius: 36px;
   font-size: 28px;
   background: #f8c7c7;
@@ -81,7 +81,7 @@
 }
 
 
-/* Кнопка правил */
+
 .rules-link {
   position: absolute;
   left: 32px;

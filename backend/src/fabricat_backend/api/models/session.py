@@ -1,7 +1,5 @@
 """Pydantic models for the gameplay WebSocket contract."""
 
-# ruff: noqa: TC001
-
 from __future__ import annotations
 
 from typing import Annotated, Any, Literal

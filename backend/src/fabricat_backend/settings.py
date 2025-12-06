@@ -15,7 +15,7 @@ class BackendSettings(BaseSettings):
     )
 
     database_url: str = "postgresql+psycopg://fabricat:fabricat@database:5432/fabricat"
-    api_host: str = "0.0.0.0"  # noqa: S104
+    api_host: str = "0.0.0.0"
     api_port: int = 8000
     auth_secret_key: str
 
@@ -23,7 +23,7 @@ class BackendSettings(BaseSettings):
 @cache
 def get_settings() -> BackendSettings:
     """Return the cached settings instance."""
-    return BackendSettings()  # pyright: ignore[reportCallIssue]
+    return BackendSettings()
 
 
 __all__ = ["BackendSettings", "get_settings"]

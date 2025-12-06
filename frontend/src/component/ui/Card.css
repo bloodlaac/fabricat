@@ -12,7 +12,7 @@
 }
 
 .create-card, .join-card {
-  background: #DCDFB0; /* зеленый фон */
+  background: #DCDFB0; 
   width: 540px;
   height: 542px;
   border-radius: 16px;
@@ -49,7 +49,7 @@
 }
 
 .pink-input {
-  background: linear-gradient(180deg, #FFDEE6, #FFD4E6); /* розовые поля */
+  background: linear-gradient(180deg, #FFDEE6, #FFD4E6); 
   border: 1px dashed rgba(0,0,0,0.05);
   border-radius: 12px;
   padding: 10px;

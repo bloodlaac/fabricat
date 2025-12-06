@@ -12,7 +12,7 @@
 }
 
 .stats-card {
-  background: #DCDFB0; /* зеленый фон как у остальных карточек */
+  background: #DCDFB0; 
   width: 1000px;
   height: 600px;
   border-radius: 16px;
@@ -40,7 +40,7 @@
   margin-bottom: 24px;
   color: #7d2e2e;
 
-  /* Овал */
+  
   background: #faeedc;
   padding: 10px 40px;
   border-radius: 40px;
@@ -49,9 +49,9 @@
   align-self: center;
 }
 
-/* Контейнер под заголовками таблицы */
+
 .stats-table th {
-  background: #faeedc; /* чистый жёлтый */
+  background: #faeedc; 
   position: sticky;
   top: 0;
   z-index: 2; 
@@ -59,7 +59,7 @@
 
 .stats-table-container {
   flex: 1;
-  background: #FFD4E6; /* желтый фон для таблицы */
+  background: #FFD4E6; 
   border-radius: 12px;
   overflow-y: auto;
   padding: 16px;
@@ -80,7 +80,7 @@
 }
 
 .stats-table th {
-  background: #faeedc; /* чуть ярче для заголовка */
+  background: #faeedc; 
   position: sticky;
   top: 0;
 }

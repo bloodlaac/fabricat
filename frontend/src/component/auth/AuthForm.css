@@ -1,12 +1,12 @@
 .auth-form {
-  margin: auto; /* форма сама идеально центрируется */
+  margin: auto; 
   display: flex;
   flex-direction: column;
   gap: clamp(18px, 2.2vw, 32px);
   align-items: center;
 }
 
-/* кружок-иконка */
+
 .auth-user-icon {
   width: clamp(70px, 10vw, 150px);
   height: clamp(70px, 10vw, 150px);
@@ -22,7 +22,7 @@
   color: #7d2e2e;
 }
 
-/* поля ввода */
+
 .auth-input {
   width: clamp(260px, 50vw, 480px);
 
@@ -36,7 +36,7 @@
   color: #7d2e2e;
 }
 
-/* кнопки */
+
 .auth-buttons {
   margin-top: clamp(10px, 2vw, 30px);
 

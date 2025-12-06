@@ -103,17 +103,17 @@ def test_buy_bids_sorted_by_price_then_priority_and_respect_limits() -> None:
 
     players[0].buy_bid = Bid(quantity=2, price=250.0)
     players[1].buy_bid = Bid(quantity=2, price=250.0)
-    players[2].buy_bid = Bid(quantity=2, price=150.0)  # below monthly minimum
+    players[2].buy_bid = Bid(quantity=2, price=150.0)
 
     session.process_buy_bids()
 
-    assert len(players[1].raw_materials) == 2  # higher priority wins tie
+    assert len(players[1].raw_materials) == 2
     assert players[1].money == pytest.approx(500.0)
 
-    assert len(players[0].raw_materials) == 2  # remaining volume filled at same price
+    assert len(players[0].raw_materials) == 2
     assert players[0].money == pytest.approx(500.0)
 
-    assert len(players[2].raw_materials) == 0  # price below corridor ignored
+    assert len(players[2].raw_materials) == 0
     assert players[2].money == pytest.approx(1_000.0)
 
 
@@ -133,7 +133,7 @@ def test_start_production_respects_costs_and_upgrade_factories() -> None:
 
     assert len(player.raw_materials) == 1
     assert len(player.finished_goods) == 4
-    assert player.money == pytest.approx(13_000.0)  # 2*2k + 1*3k costs
+    assert player.money == pytest.approx(13_000.0)
     assert player.production_call_for_basic == 1
     assert player.production_call_for_auto == 1
 
@@ -163,7 +163,7 @@ def test_process_loans_issues_interest_and_repayment() -> None:
     assert session._bank.money == pytest.approx(bank_money_after_issue + 50.0)
 
     session._state.month = loan.return_month
-    player.money += 5_000.0  # simulate income to cover repayment
+    player.money += 5_000.0
     session.process_loans()
 
     assert loan.loan_status == "idle"
@@ -245,7 +245,7 @@ def test_build_basic_factory_tracks_second_payment_and_limit() -> None:
 
     player.build_or_upgrade_call = "build_basic"
     session.build_or_upgrade()
-    assert len(player.factories) == 1  # limit enforced
+    assert len(player.factories) == 1
 
     session._state.month = factory.next_payment_month
     session.build_or_upgrade()
@@ -323,7 +323,7 @@ def test_seniority_history_tracks_rotations() -> None:
     session = GameSession(
         players=players,
         settings=make_settings(),
-        rng=Random(7),  # noqa: S311
+        rng=Random(7),
     )
 
     assert session.seniority_history[0].month == 1

@@ -34,7 +34,7 @@ def get_current_user(
 
     try:
         payload = auth_service.decode_access_token(credentials.credentials)
-    except Exception as exc:  # pragma: no cover - pyjwt raises various subclasses
+    except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         ) from exc
@@ -42,7 +42,7 @@ def get_current_user(
     repository = UserRepository(session)
     try:
         user_id = UUID(payload.sub)
-    except ValueError as exc:  # pragma: no cover - should not happen for valid tokens
+    except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject"
         ) from exc

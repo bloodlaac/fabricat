@@ -31,7 +31,7 @@ from fabricat_backend.api.models.session import (
     SubmitBuyBidPayload,
     SubmitSellBidPayload,
 )
-from fabricat_backend.api.services import (  # noqa: TC001
+from fabricat_backend.api.services import (
     AuthService,
     GameHistoryRecorder,
     PlayerHistoryPayload,
@@ -175,14 +175,14 @@ def _get_game_history_recorder() -> GameHistoryRecorder | None:
 
     try:
         settings = get_settings()
-    except Exception:  # pragma: no cover - defensive fallback
+    except Exception:
         return None
 
     try:
         _GAME_HISTORY_RECORDER = GameHistoryRecorder(
             database=DatabaseService(settings.database_url),
         )
-    except Exception:  # pragma: no cover - if dependencies are missing
+    except Exception:
         return None
     return _GAME_HISTORY_RECORDER
 
@@ -222,7 +222,6 @@ async def _record_game_history(context: SessionContext) -> None:
             stats=_build_player_history_payload(context),
         )
     except Exception:
-        # Recording failures should not disrupt the websocket lifecycle.
         return
 
 
@@ -231,7 +230,6 @@ def _refresh_unstarted_context(context: SessionContext) -> None:
     if context.session_started:
         return
 
-    # Rebuild player objects to avoid duplicating starting factories
     assignment_ids = {uid: player.id_ for uid, player in context.assignments.items()}
     fresh_players: list[Player] = []
     for index, existing in enumerate(context.players):
@@ -449,7 +447,7 @@ async def _auto_start_lobby(context: SessionContext) -> None:
     while True:
         try:
             await asyncio.sleep(AUTO_START_DELAY_SECONDS)
-        except asyncio.CancelledError:  # pragma: no cover - cancellation path
+        except asyncio.CancelledError:
             return
 
         started, detail = await _start_context_session(
@@ -520,7 +518,7 @@ def _clear_phase_state(player: Player, phase: GamePhase) -> None:
             return
 
 
-def _apply_phase_action(  # noqa: C901
+def _apply_phase_action(
     player: Player, request: PhaseActionRequest
 ) -> dict[str, Any]:
     """Mutate the player according to the payload and return ack details."""
@@ -690,9 +688,9 @@ class SessionRuntime:
 
 
 @router.websocket("/ws/game")
-async def game_session(  # noqa: C901, PLR0912, PLR0915
+async def game_session(
     websocket: WebSocket,
-    auth_service: AuthService = Depends(get_auth_service),  # noqa: B008
+    auth_service: AuthService = Depends(get_auth_service),
 ) -> None:
     """WebSocket endpoint that streams timers, reports, and accepts actions."""
     token = websocket.query_params.get("token")
@@ -704,7 +702,7 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
 
     try:
         payload = auth_service.decode_access_token(token)
-    except Exception:  # noqa: BLE001
+    except Exception:
         await websocket.close(
             code=status.WS_1008_POLICY_VIOLATION, reason="Invalid token"
         )
@@ -719,7 +717,6 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
             await websocket.send_json(model.model_dump(mode="json"))
 
     context: SessionContext | None = None
-    controlled_player: Player | None = None
     session_code_value: str | None = None
     user_identifier: str | None = None
 
@@ -727,7 +724,7 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
         while True:
             try:
                 data = await websocket.receive_json()
-            except WebSocketDisconnect:  # pragma: no cover - network event
+            except WebSocketDisconnect:
                 break
 
             try:
@@ -753,15 +750,12 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
 
                 user_identifier = payload.sub
                 try:
-                    (
-                        context,
-                        session_code_value,
-                        controlled_player,
-                        _created,
-                    ) = await _register_connection(
-                        requested_code=message.session_code,
-                        user_identifier=user_identifier,
-                        send=send,
+                    (context, session_code_value, _controlled_player, _created) = (
+                        await _register_connection(
+                            requested_code=message.session_code,
+                            user_identifier=user_identifier,
+                            send=send,
+                        )
                     )
                 except SessionJoinError as exc:
                     await send(
@@ -899,6 +893,16 @@ async def game_session(  # noqa: C901, PLR0912, PLR0915
                     )
                     continue
 
+                if user_identifier is None:
+                    await send(
+                        ErrorResponse(
+                            message="Session not ready for actions",
+                            detail={},
+                        )
+                    )
+                    continue
+
+                controlled_player = context.assignments.get(user_identifier)
                 if controlled_player is None:
                     await send(
                         ErrorResponse(
