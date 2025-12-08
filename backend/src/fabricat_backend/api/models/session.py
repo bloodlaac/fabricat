@@ -153,6 +153,25 @@ class PhaseReportResponse(BaseModel):
     report: PhaseReport
 
 
+class FinalPlayerResult(BaseModel):
+    """Final placement payload for a player."""
+
+    player_id: int
+    place: int
+    capital: float
+    is_bankrupt: bool
+    is_top1: bool
+    nickname: str | None = None
+    icon: str | None = None
+
+
+class GameFinishedResponse(BaseModel):
+    """Sent when the game reaches completion."""
+
+    type: Literal["game_finished"] = "game_finished"
+    results: list[FinalPlayerResult]
+
+
 class ActionAckResponse(BaseModel):
     """Acknowledgement indicating that an action was accepted."""
 

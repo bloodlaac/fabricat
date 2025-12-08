@@ -17,6 +17,8 @@ from fabricat_backend.api.dependencies import get_auth_service
 from fabricat_backend.api.models.session import (
     ActionAckResponse,
     ErrorResponse,
+    FinalPlayerResult,
+    GameFinishedResponse,
     HeartbeatRequest,
     InboundWsMessage,
     JoinSessionRequest,
@@ -36,6 +38,7 @@ from fabricat_backend.api.services import (
     GameHistoryRecorder,
     PlayerHistoryPayload,
 )
+from fabricat_backend.database.repositories import UserRepository
 from fabricat_backend.database.service import DatabaseService
 from fabricat_backend.game_logic.phases import (
     DEFAULT_PHASE_DURATION_SECONDS,
@@ -89,14 +92,28 @@ class SessionContext:
     auto_start_task: asyncio.Task | None = None
     connections: int = 0
 
-    def assign_player(self, user_identifier: str) -> Player:
+    def assign_player(
+        self,
+        user_identifier: str,
+        *,
+        nickname: str | None = None,
+        icon: str | None = None,
+    ) -> Player:
         """Attach the user to an available player seat."""
         player = self.assignments.get(user_identifier)
         if player is not None:
+            if nickname:
+                player.nickname = nickname
+            if icon:
+                player.icon = icon
             return player
         assigned_ids = {entry.id_ for entry in self.assignments.values()}
         for candidate in self.players:
             if candidate.id_ not in assigned_ids:
+                if nickname:
+                    candidate.nickname = nickname
+                if icon:
+                    candidate.icon = icon
                 self.assignments[user_identifier] = candidate
                 return candidate
         msg = "Session is full"
@@ -110,6 +127,8 @@ class SessionContext:
 _SESSION_REGISTRY: dict[str, SessionContext] = {}
 _SESSION_LOCK = asyncio.Lock()
 _GAME_HISTORY_RECORDER: GameHistoryRecorder | None = None
+_DB_SERVICE: DatabaseService | None = None
+_USER_PROFILE_CACHE: dict[str, tuple[str | None, str | None]] = {}
 
 
 class SessionJoinError(Exception):
@@ -155,16 +174,69 @@ def _default_game_settings() -> GameSettings:
     )
 
 
-def _bootstrap_players(user_identifier: str) -> tuple[list[Player], Player]:
+def _bootstrap_players(
+    user_identifier: str, *, nickname: str | None = None, icon: str | None = None
+) -> tuple[list[Player], Player]:
     """Create a roster with only the current user."""
     base_id = abs(hash(user_identifier)) % 9_000 + 1
-    user_player = Player(id_=base_id, money=10_000.0, priority=1)
+    user_player = Player(
+        id_=base_id,
+        money=10_000.0,
+        priority=1,
+        nickname=nickname,
+        icon=icon,
+    )
     return [user_player], user_player
 
 
 def _generate_session_code() -> str:
     """Produce a random short session code."""
     return uuid4().hex[:8]
+
+
+def _get_db_service() -> DatabaseService | None:
+    """Return a cached database service instance if configuration is available."""
+    global _DB_SERVICE
+    if _DB_SERVICE is not None:
+        return _DB_SERVICE
+
+    try:
+        settings = get_settings()
+    except Exception:
+        return None
+
+    try:
+        _DB_SERVICE = DatabaseService(settings.database_url)
+    except Exception:
+        return None
+    return _DB_SERVICE
+
+
+def _load_user_profile(user_identifier: str) -> tuple[str | None, str | None]:
+    """Fetch nickname and icon for a given user identifier."""
+    if user_identifier in _USER_PROFILE_CACHE:
+        return _USER_PROFILE_CACHE[user_identifier]
+
+    service = _get_db_service()
+    if service is None:
+        return (None, None)
+
+    try:
+        user_id = UUID(user_identifier)
+    except ValueError:
+        return (None, None)
+
+    try:
+        with service.session() as session:
+            repo = UserRepository(session)
+            user = repo.get_by_id(user_id)
+            if user is None:
+                return (None, None)
+            profile = (user.nickname, user.icon)
+            _USER_PROFILE_CACHE[user_identifier] = profile
+            return profile
+    except Exception:
+        return (None, None)
 
 
 def _get_game_history_recorder() -> GameHistoryRecorder | None:
@@ -236,6 +308,8 @@ def _refresh_unstarted_context(context: SessionContext) -> None:
         fresh_players.append(
             Player(
                 id_=existing.id_,
+                nickname=existing.nickname,
+                icon=existing.icon,
                 money=10_000.0,
                 priority=index + 1,
             )
@@ -293,11 +367,14 @@ async def _register_connection(
     send: ActionSender,
 ) -> tuple[SessionContext, str, Player, bool]:
     """Create or reuse a session context and attach the user to it."""
+    nickname, icon = _load_user_profile(user_identifier)
     async with _SESSION_LOCK:
         session_code = requested_code or _generate_session_code()
         context = _SESSION_REGISTRY.get(session_code)
         if context is None:
-            players, controlled_player = _bootstrap_players(user_identifier)
+            players, controlled_player = _bootstrap_players(
+                user_identifier, nickname=nickname, icon=icon
+            )
             game_settings = _default_game_settings()
             session = GameSession(players=players, settings=game_settings)
             runtime = SessionRuntime(
@@ -352,7 +429,9 @@ async def _register_connection(
             context.players.append(_spawn_player_slot(context))
             _refresh_unstarted_context(context)
 
-        controlled_player = context.assign_player(user_identifier)
+        controlled_player = context.assign_player(
+            user_identifier, nickname=nickname, icon=icon
+        )
         context.runtime.add_sender(send)
         if send not in context.listeners:
             context.listeners.append(send)
@@ -668,6 +747,25 @@ class SessionRuntime:
             await self._broadcast(PhaseReportResponse(report=report))
 
             if self._session.is_finished:
+                players_by_id = {player.id_: player for player in self._session.players}
+                final_stats = self._session.build_final_player_stats()
+                results = [
+                    FinalPlayerResult(
+                        player_id=stat.player_id,
+                        place=stat.place,
+                        capital=stat.capital,
+                        is_bankrupt=stat.is_bankrupt,
+                        is_top1=stat.is_top1,
+                        nickname=players_by_id.get(stat.player_id).nickname
+                        if players_by_id.get(stat.player_id)
+                        else None,
+                        icon=players_by_id.get(stat.player_id).icon
+                        if players_by_id.get(stat.player_id)
+                        else None,
+                    )
+                    for stat in final_stats
+                ]
+                await self._broadcast(GameFinishedResponse(results=results))
                 self._stopped.set()
                 if self._on_finished is not None:
                     with contextlib.suppress(Exception):

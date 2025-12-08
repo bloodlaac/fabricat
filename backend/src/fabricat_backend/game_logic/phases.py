@@ -67,6 +67,8 @@ class PlayerPhaseAnalytics(BaseModel):
     """Compact per-player snapshot shared with the front-end."""
 
     player_id: int
+    nickname: str | None = None
+    icon: str | None = None
     money: float
     raw_materials: int
     finished_goods: int

@@ -185,6 +185,9 @@ class Player(BaseModel):
 
     id_: int
 
+    nickname: str | None = None
+    icon: str | None = None
+
     money: float
     is_bankrupt: bool = False
 
@@ -630,11 +633,11 @@ class GameSession:
         ordered = sorted(
             self._players,
             key=lambda player: (
-                capitals[player.id_],
-                -player.priority,
-                -player.id_,
+                player.is_bankrupt,
+                -capitals[player.id_],
+                player.priority,
+                player.id_,
             ),
-            reverse=True,
         )
 
         results: list[PlayerFinalStats] = []
@@ -705,6 +708,8 @@ class GameSession:
         players = [
             PlayerPhaseAnalytics(
                 player_id=player.id_,
+                nickname=player.nickname,
+                icon=player.icon,
                 money=player.money,
                 raw_materials=len(player.raw_materials),
                 finished_goods=len(player.finished_goods),
@@ -795,6 +800,11 @@ class GameSession:
     def tie_break_log(self) -> list[SeniorityRollLogEntry]:
         """Return the raw dice rolls used to resolve seniority ties."""
         return list(self._seniority_rolls)
+
+    @property
+    def players(self) -> tuple[Player, ...]:
+        """Expose the current roster."""
+        return tuple(self._players)
 
     @staticmethod
     def _sort_players_buy(player: Player) -> tuple[float, int]:
