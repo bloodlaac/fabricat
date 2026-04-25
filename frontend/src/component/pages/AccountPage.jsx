@@ -67,7 +67,11 @@ export default function AccountPage() {
         <CreateGameCard onClose={() => setActiveCard(null)} onStartGame={handleStartGame} />
       )}
       {activeCard === "join" && (
-        <JoinGameCard onClose={() => setActiveCard(null)} onStartGame={handleStartGame} />
+        <JoinGameCard
+          onClose={() => setActiveCard(null)}
+          onStartGame={handleStartGame}
+          token={auth?.token?.access_token}
+        />
       )}
       {activeCard === "stats" && (
         <StatsCard onClose={() => setActiveCard(null)} token={auth?.token?.access_token} />

@@ -66,6 +66,13 @@ export async function fetchRecentGames({ token, limit = 10 }) {
   });
 }
 
+export async function checkSessionExists({ sessionCode, token }) {
+  return request(`/session/${sessionCode}/exists`, {
+    method: "GET",
+    token,
+  });
+}
+
 export function buildWsUrl(token) {
   const separator = WS_BASE_URL.endsWith("/") ? "" : "/";
   const url = `${WS_BASE_URL}${separator}ws/game`;

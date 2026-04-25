@@ -1,20 +1,30 @@
 import React, { useState } from "react";
+import { checkSessionExists } from "../../api/client";
 import "./Card.css";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 
-export default function JoinGameCard({ onClose, onStartGame }) {
+export default function JoinGameCard({ onClose, onStartGame, token }) {
   const [sessionCode, setSessionCode] = useState("");
   const [error, setError] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (!sessionCode.trim()) {
       setError("Введите код сессии");
       return;
     }
     setError("");
-    if (typeof onStartGame === "function") {
-      onStartGame(sessionCode.trim());
+    setIsChecking(true);
+    try {
+      await checkSessionExists({ sessionCode: sessionCode.trim(), token });
+      if (typeof onStartGame === "function") {
+        onStartGame(sessionCode.trim());
+      }
+    } catch (err) {
+      setError(err?.message || "Лобби с таким кодом не существует");
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -32,7 +42,7 @@ export default function JoinGameCard({ onClose, onStartGame }) {
           />
         </div>
         {error && <div className="card-error">{error}</div>}
-        <Button className="card-btn" onClick={handleJoin}>
+        <Button className="card-btn" onClick={handleJoin} disabled={isChecking}>
           Присоединиться
         </Button>
       </div>

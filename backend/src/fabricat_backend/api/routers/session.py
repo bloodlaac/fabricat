@@ -10,7 +10,14 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from fabricat_backend.api.dependencies import get_auth_service
@@ -137,6 +144,32 @@ class SessionJoinError(Exception):
     def __init__(self, message: str, detail: dict[str, Any] | None = None) -> None:
         super().__init__(message)
         self.detail = detail or {}
+
+
+@router.get(
+    "/session/{session_code}/exists",
+    response_model=dict[str, bool],
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Session not found",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Лобби с таким кодом не существует"}
+                }
+            },
+        }
+    },
+)
+async def session_exists(session_code: str) -> dict[str, bool]:
+    """Check whether a lobby with the provided code is available."""
+    async with _SESSION_LOCK:
+        context = _SESSION_REGISTRY.get(session_code)
+    if context is None or context.session.is_finished:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Лобби с таким кодом не существует",
+        )
+    return {"exists": True}
 
 
 def _default_game_settings() -> GameSettings:
@@ -369,8 +402,15 @@ async def _register_connection(
     """Create or reuse a session context and attach the user to it."""
     nickname, icon = _load_user_profile(user_identifier)
     async with _SESSION_LOCK:
-        session_code = requested_code or _generate_session_code()
-        context = _SESSION_REGISTRY.get(session_code)
+        if requested_code:
+            session_code = requested_code
+            context = _SESSION_REGISTRY.get(session_code)
+            if context is None:
+                msg = "Лобби с таким кодом не существует"
+                raise SessionJoinError(msg, {"session_code": session_code})
+        else:
+            session_code = _generate_session_code()
+            context = None
         if context is None:
             players, controlled_player = _bootstrap_players(
                 user_identifier, nickname=nickname, icon=icon
